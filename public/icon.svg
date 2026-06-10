@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="赤瞳工作空间">
+  <rect width="512" height="512" rx="112" fill="#8f3f22"/>
+  <circle cx="256" cy="256" r="156" fill="#fbf6ea"/>
+  <circle cx="256" cy="256" r="88" fill="#d7a83f"/>
+  <circle cx="256" cy="256" r="42" fill="#182019"/>
+  <path d="M126 258c38-78 82-116 130-116s92 38 130 116c-38 78-82 116-130 116s-92-38-130-116Z" fill="none" stroke="#182019" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

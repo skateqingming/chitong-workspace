@@ -1,0 +1,1002 @@
+const state = {
+  user: null,
+  bootstrap: null,
+  employeeFilters: {
+    query: "",
+    department: "all",
+    position: "all"
+  },
+  handbookFilters: {
+    query: "",
+    category: "all"
+  },
+  sopFilters: {
+    query: "",
+    department: "all"
+  },
+  activeModule: "work"
+};
+
+const loginForm = document.querySelector("#loginForm");
+const hero = document.querySelector(".hero");
+const loginCard = document.querySelector("#loginCard");
+const workspace = document.querySelector("#workspace");
+const bottomNav = document.querySelector("#bottomNav");
+const welcomeTitle = document.querySelector("#welcomeTitle");
+const metrics = document.querySelector("#metrics");
+const modulePanels = document.querySelectorAll("[data-module-panel]");
+const moduleNavItems = document.querySelectorAll("[data-module-target]");
+const workSheetList = document.querySelector("#workSheetList");
+const scheduleList = document.querySelector("#scheduleList");
+const employeeAssignmentList = document.querySelector("#employeeAssignmentList");
+const noticeList = document.querySelector("#noticeList");
+const handbookList = document.querySelector("#handbookList");
+const sopList = document.querySelector("#sopList");
+const kfsList = document.querySelector("#kfsList");
+const assignmentList = document.querySelector("#assignmentList");
+const employeeList = document.querySelector("#employeeList");
+const departmentList = document.querySelector("#departmentList");
+const positionList = document.querySelector("#positionList");
+const leaveList = document.querySelector("#leaveList");
+const payrollList = document.querySelector("#payrollList");
+const auditList = document.querySelector("#auditList");
+const employeeForm = document.querySelector("#employeeForm");
+const departmentForm = document.querySelector("#departmentForm");
+const positionForm = document.querySelector("#positionForm");
+const employeeDepartmentSelect = document.querySelector("#employeeDepartmentSelect");
+const employeePositionSelect = document.querySelector("#employeePositionSelect");
+const positionDepartmentSelect = document.querySelector("#positionDepartmentSelect");
+const employeeSearchInput = document.querySelector("#employeeSearchInput");
+const departmentFilter = document.querySelector("#departmentFilter");
+const positionFilter = document.querySelector("#positionFilter");
+const handbookSearchInput = document.querySelector("#handbookSearchInput");
+const handbookCategoryFilter = document.querySelector("#handbookCategoryFilter");
+const sopSearchInput = document.querySelector("#sopSearchInput");
+const sopDepartmentFilter = document.querySelector("#sopDepartmentFilter");
+const leaveForm = document.querySelector("#leaveForm");
+const leaveEmployeeSelect = document.querySelector("#leaveEmployeeSelect");
+const generatePayrollButton = document.querySelector("#generatePayrollButton");
+const logoutButton = document.querySelector("#logoutButton");
+const detailDialog = document.querySelector("#detailDialog");
+const dialogContent = document.querySelector("#dialogContent");
+const dialogCloseButton = document.querySelector("#dialogCloseButton");
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").catch(() => {
+    // The app still works without offline caching, especially during local HTTP testing.
+  });
+}
+
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const formData = new FormData(loginForm);
+  const payload = Object.fromEntries(formData.entries());
+
+  const response = await fetch("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  const result = await response.json();
+  if (!response.ok) {
+    alert(result.error || "登录失败");
+    return;
+  }
+
+  state.user = result.user;
+  await loadWorkspace();
+});
+
+logoutButton.addEventListener("click", () => {
+  state.user = null;
+  state.activeModule = "work";
+  workspace.classList.add("is-hidden");
+  bottomNav.classList.add("is-hidden");
+  hero.classList.remove("is-hidden");
+  loginCard.classList.remove("is-hidden");
+});
+
+employeeForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const formData = new FormData(employeeForm);
+
+  const response = await fetch("/api/employees", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(Object.fromEntries(formData.entries()))
+  });
+
+  if (!response.ok) {
+    const result = await response.json();
+    alert(result.error || "新增失败");
+    return;
+  }
+
+  employeeForm.reset();
+  await loadWorkspace();
+});
+
+departmentForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const formData = new FormData(departmentForm);
+
+  const response = await fetch("/api/departments", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(Object.fromEntries(formData.entries()))
+  });
+
+  if (!response.ok) {
+    const result = await response.json();
+    alert(result.error || "新增部门失败");
+    return;
+  }
+
+  departmentForm.reset();
+  await loadWorkspace();
+});
+
+positionForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const formData = new FormData(positionForm);
+
+  const response = await fetch("/api/positions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(Object.fromEntries(formData.entries()))
+  });
+
+  if (!response.ok) {
+    const result = await response.json();
+    alert(result.error || "新增岗位失败");
+    return;
+  }
+
+  positionForm.reset();
+  await loadWorkspace();
+});
+
+employeeSearchInput.addEventListener("input", () => {
+  state.employeeFilters.query = employeeSearchInput.value.trim().toLowerCase();
+  renderEmployees();
+});
+
+departmentFilter.addEventListener("change", () => {
+  state.employeeFilters.department = departmentFilter.value;
+  renderEmployees();
+});
+
+positionFilter.addEventListener("change", () => {
+  state.employeeFilters.position = positionFilter.value;
+  renderEmployees();
+});
+
+handbookSearchInput.addEventListener("input", () => {
+  state.handbookFilters.query = handbookSearchInput.value.trim().toLowerCase();
+  renderHandbookArticles();
+});
+
+handbookCategoryFilter.addEventListener("change", () => {
+  state.handbookFilters.category = handbookCategoryFilter.value;
+  renderHandbookArticles();
+});
+
+sopSearchInput.addEventListener("input", () => {
+  state.sopFilters.query = sopSearchInput.value.trim().toLowerCase();
+  renderSopWorkflows();
+});
+
+sopDepartmentFilter.addEventListener("change", () => {
+  state.sopFilters.department = sopDepartmentFilter.value;
+  renderSopWorkflows();
+});
+
+leaveForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const formData = new FormData(leaveForm);
+
+  const response = await fetch("/api/leave-requests", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(Object.fromEntries(formData.entries()))
+  });
+
+  if (!response.ok) {
+    const result = await response.json();
+    alert(result.error || "提交失败");
+    return;
+  }
+
+  leaveForm.reset();
+  await loadWorkspace();
+});
+
+employeeList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-employee-detail]");
+  if (!button) {
+    return;
+  }
+
+  openEmployeeDetail(button.dataset.employeeDetail);
+});
+
+handbookList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-handbook-detail]");
+  if (!button) {
+    return;
+  }
+
+  openHandbookDetail(button.dataset.handbookDetail);
+});
+
+sopList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-sop-detail]");
+  if (!button) {
+    return;
+  }
+
+  openSopDetail(button.dataset.sopDetail);
+});
+
+leaveList.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-leave-action]");
+  if (!button) {
+    return;
+  }
+
+  const response = await fetch("/api/leave-requests/action", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: button.dataset.leaveId,
+      action: button.dataset.leaveAction
+    })
+  });
+
+  if (!response.ok) {
+    const result = await response.json();
+    alert(result.error || "审批失败");
+    return;
+  }
+
+  await loadWorkspace();
+});
+
+generatePayrollButton.addEventListener("click", async () => {
+  generatePayrollButton.disabled = true;
+  generatePayrollButton.textContent = "生成中...";
+
+  const response = await fetch("/api/payroll-runs/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  });
+
+  generatePayrollButton.disabled = false;
+  generatePayrollButton.textContent = "生成本月工资单";
+
+  if (!response.ok) {
+    const result = await response.json();
+    alert(result.error || "生成失败");
+    return;
+  }
+
+  await loadWorkspace();
+});
+
+moduleNavItems.forEach((button) => {
+  button.addEventListener("click", () => {
+    setActiveModule(button.dataset.moduleTarget);
+  });
+});
+
+payrollList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-payslip-detail]");
+  if (!button) {
+    return;
+  }
+
+  openPayslipDetail(button.dataset.payrollId, button.dataset.payslipDetail);
+});
+
+dialogCloseButton.addEventListener("click", closeDialog);
+
+detailDialog.addEventListener("click", (event) => {
+  if (event.target === detailDialog) {
+    closeDialog();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && detailDialog.open) {
+    closeDialog();
+  }
+});
+
+async function loadWorkspace() {
+  const response = await fetch("/api/bootstrap");
+  state.bootstrap = await response.json();
+
+  hero.classList.add("is-hidden");
+  loginCard.classList.add("is-hidden");
+  workspace.classList.remove("is-hidden");
+  bottomNav.classList.remove("is-hidden");
+  welcomeTitle.textContent = state.user.name;
+
+  renderMetrics();
+  renderWorkSheets();
+  renderEmployeeAssignments();
+  renderNotices();
+  renderSchedules();
+  renderEmployeePortalControls();
+  renderHandbookArticles();
+  renderSopWorkflows();
+  renderKfsScores();
+  renderOrgControls();
+  renderEmployees();
+  renderDepartments();
+  renderPositions();
+  renderAssignments();
+  renderLeaveRequests();
+  renderPayrollRuns();
+  renderAuditLogs();
+  renderRoleNavigation();
+  setActiveModule(getAllowedModules()[0]);
+}
+
+function setActiveModule(moduleName) {
+  const allowedModules = getAllowedModules();
+  const safeModuleName = allowedModules.includes(moduleName) ? moduleName : allowedModules[0];
+  state.activeModule = safeModuleName;
+
+  modulePanels.forEach((panel) => {
+    const isAllowed = allowedModules.includes(panel.dataset.modulePanel);
+    panel.classList.toggle("is-role-hidden", !isAllowed);
+    panel.classList.toggle("is-active", panel.dataset.modulePanel === safeModuleName && isAllowed);
+  });
+
+  moduleNavItems.forEach((button) => {
+    const isAllowed = allowedModules.includes(button.dataset.moduleTarget);
+    button.classList.toggle("is-role-hidden", !isAllowed);
+    button.classList.toggle("is-active", button.dataset.moduleTarget === safeModuleName && isAllowed);
+  });
+}
+
+function renderRoleNavigation() {
+  bottomNav.dataset.role = state.user.role;
+  welcomeTitle.textContent = state.user.name;
+}
+
+function getAllowedModules() {
+  if (!state.user || state.user.role === "employee") {
+    return ["work", "knowledge"];
+  }
+
+  return ["work", "knowledge", "payroll", "admin"];
+}
+
+function renderEmployeePortalControls() {
+  const handbookCategories = [...new Set(state.bootstrap.handbookArticles.map((item) => item.category))];
+  const sopDepartments = [...new Set(state.bootstrap.sopWorkflows.map((item) => item.department))];
+
+  handbookCategoryFilter.innerHTML = `<option value="all">全部分类</option>${handbookCategories
+    .map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`)
+    .join("")}`;
+  sopDepartmentFilter.innerHTML = `<option value="all">全部部门</option>${sopDepartments
+    .map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`)
+    .join("")}`;
+  handbookCategoryFilter.value = state.handbookFilters.category;
+  sopDepartmentFilter.value = state.sopFilters.department;
+}
+
+function renderHandbookArticles() {
+  const articles = getFilteredHandbookArticles();
+
+  handbookList.innerHTML = articles.length
+    ? articles.map((item) => `
+      <article class="knowledge-card">
+        <div>
+          <span class="tag">${escapeHtml(item.category)}</span>
+          <h4>${escapeHtml(item.title)}</h4>
+          <p>${escapeHtml(item.summary)}</p>
+          <small>${escapeHtml(item.owner)} · 更新于 ${escapeHtml(item.updatedAt)}</small>
+        </div>
+        <button class="mini neutral" type="button" data-handbook-detail="${escapeHtml(item.id)}">查看</button>
+      </article>
+    `).join("")
+    : `<p class="empty-state">没有找到相关手册。制度藏起来可不行，我们换个关键词找。</p>`;
+}
+
+function renderSopWorkflows() {
+  const workflows = getFilteredSopWorkflows();
+
+  sopList.innerHTML = workflows.length
+    ? workflows.map((item) => `
+      <article class="knowledge-card">
+        <div>
+          <span class="tag">${escapeHtml(item.department)}</span>
+          <h4>${escapeHtml(item.name)}</h4>
+          <p>${escapeHtml(item.scenario)}</p>
+          <small>${escapeHtml(item.owner)} · ${escapeHtml(item.sla)}</small>
+        </div>
+        <button class="mini neutral" type="button" data-sop-detail="${escapeHtml(item.id)}">步骤</button>
+      </article>
+    `).join("")
+    : `<p class="empty-state">没有找到相关 SOP。流程没丢，只是关键词可能太神秘了。</p>`;
+}
+
+function getFilteredHandbookArticles() {
+  const { query, category } = state.handbookFilters;
+
+  return state.bootstrap.handbookArticles.filter((item) => {
+    const text = `${item.category} ${item.title} ${item.summary} ${item.owner}`.toLowerCase();
+    const matchesQuery = !query || text.includes(query);
+    const matchesCategory = category === "all" || item.category === category;
+
+    return matchesQuery && matchesCategory;
+  });
+}
+
+function getFilteredSopWorkflows() {
+  const { query, department } = state.sopFilters;
+
+  return state.bootstrap.sopWorkflows.filter((item) => {
+    const text = `${item.name} ${item.department} ${item.scenario} ${item.owner}`.toLowerCase();
+    const matchesQuery = !query || text.includes(query);
+    const matchesDepartment = department === "all" || item.department === department;
+
+    return matchesQuery && matchesDepartment;
+  });
+}
+
+function renderMetrics() {
+  const labels = {
+    employeeCount: "在职员工",
+    pendingLeaves: "待批假单",
+    payrollTotal: "本月应发",
+    riskAlerts: "风险提醒"
+  };
+
+  metrics.innerHTML = Object.entries(state.bootstrap.metrics)
+    .map(([key, value]) => `
+      <article class="metric-card">
+        <span class="eyebrow">${labels[key] || key}</span>
+        <strong>${formatMetric(key, value)}</strong>
+      </article>
+    `)
+    .join("");
+}
+
+function renderWorkSheets() {
+  const workSheets = getVisibleWorkSheets();
+
+  workSheetList.innerHTML = workSheets.length
+    ? workSheets
+    .map((item) => `
+      <article class="work-card">
+        <div>
+          <span class="tag">${escapeHtml(item.department)}</span>
+          <h4>${escapeHtml(item.title)}</h4>
+          <p>${escapeHtml(item.owner)} · ${escapeHtml(item.status)} · 更新 ${escapeHtml(item.updatedAt)}</p>
+        </div>
+        <div class="mini-grid">
+          ${item.fields.map((field) => `<span>${escapeHtml(field)}</span>`).join("")}
+        </div>
+      </article>
+    `)
+    .join("")
+    : `<p class="empty-state">暂时没有和你相关的工作表。</p>`;
+}
+
+function renderSchedules() {
+  scheduleList.innerHTML = state.bootstrap.schedules
+    .map((item) => `
+      <article class="timeline-item">
+        <time>${escapeHtml(item.time)}</time>
+        <div>
+          <strong>${escapeHtml(item.title)}</strong>
+          <p>${escapeHtml(item.department)} · ${escapeHtml(item.location)} · ${escapeHtml(item.owner)}</p>
+        </div>
+      </article>
+    `)
+    .join("");
+}
+
+function renderEmployeeAssignments() {
+  const assignments = getVisibleAssignments();
+
+  employeeAssignmentList.innerHTML = assignments.length
+    ? assignments.map((item) => `
+      <article class="assignment-card">
+        <div>
+          <span class="tag">${escapeHtml(item.department)}</span>
+          <h4>${escapeHtml(item.project)}</h4>
+          <p>${escapeHtml(item.lead)} · ${escapeHtml(item.shift)}</p>
+          <small>${item.members.map((member) => escapeHtml(member)).join(" / ")}</small>
+        </div>
+        <span class="status">${escapeHtml(item.status)}</span>
+      </article>
+    `).join("")
+    : `<p class="empty-state">暂时没有和你相关的项目协作。</p>`;
+}
+
+function renderNotices() {
+  const notices = getVisibleNotices();
+
+  noticeList.innerHTML = notices.length
+    ? notices.map((item) => `
+      <article class="notice-card">
+        <div>
+          <span class="tag">${escapeHtml(item.priority)}</span>
+          <h4>${escapeHtml(item.title)}</h4>
+          <p>${escapeHtml(item.content)}</p>
+          <small>${escapeHtml(item.publisher)} · ${escapeHtml(item.department)} · ${escapeHtml(item.publishedAt)}</small>
+        </div>
+      </article>
+    `).join("")
+    : `<p class="empty-state">暂时没有新的通知。</p>`;
+}
+
+function renderKfsScores() {
+  kfsList.innerHTML = state.bootstrap.kfsScores
+    .map((item) => `
+      <article class="kfs-card">
+        <div class="kfs-head">
+          <div>
+            <strong>${escapeHtml(item.employeeName)}</strong>
+            <p>${escapeHtml(item.department)} · 系数 ${escapeHtml(item.coefficient)}</p>
+          </div>
+          <span class="status is-approved">${formatCurrency(item.bonus)}</span>
+        </div>
+        <div class="kfs-bars">
+          ${renderKfsBar("K 关键成果", item.k)}
+          ${renderKfsBar("F 流程效率", item.f)}
+          ${renderKfsBar("S 服务协作", item.s)}
+        </div>
+        <p>${escapeHtml(item.notes)}</p>
+      </article>
+    `)
+    .join("");
+}
+
+function renderKfsBar(label, value) {
+  return `
+    <div class="kfs-bar">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <i style="width: ${Number(value || 0)}%"></i>
+    </div>
+  `;
+}
+
+function renderAssignments() {
+  assignmentList.innerHTML = state.bootstrap.staffAssignments
+    .map((item) => `
+      <article class="assignment-card">
+        <div>
+          <span class="tag">${escapeHtml(item.department)}</span>
+          <h4>${escapeHtml(item.project)}</h4>
+          <p>${escapeHtml(item.lead)} · ${escapeHtml(item.shift)}</p>
+          <small>${item.members.map((member) => escapeHtml(member)).join(" / ")}</small>
+        </div>
+        <span class="status">${escapeHtml(item.status)}</span>
+      </article>
+    `)
+    .join("");
+}
+
+function getVisibleWorkSheets() {
+  if (canManage()) {
+    return state.bootstrap.workSheets;
+  }
+
+  return state.bootstrap.workSheets.filter((item) => isCurrentUserRelated(item));
+}
+
+function getVisibleAssignments() {
+  if (canManage()) {
+    return state.bootstrap.staffAssignments;
+  }
+
+  return state.bootstrap.staffAssignments.filter((item) => isCurrentUserRelated(item));
+}
+
+function getVisibleNotices() {
+  return state.bootstrap.notices.filter((item) => {
+    return item.department === "全员" || item.department === state.user.department;
+  });
+}
+
+function isCurrentUserRelated(item) {
+  const participants = item.participants || [];
+  return item.owner === state.user.name
+    || item.lead === state.user.name
+    || item.department === state.user.department
+    || participants.includes(state.user.name);
+}
+
+function canManage() {
+  return state.user?.role === "admin" || state.user?.role === "manager";
+}
+
+function renderEmployees() {
+  const employees = getFilteredEmployees();
+
+  employeeList.innerHTML = employees.length
+    ? employees
+    .map((item) => `
+      <div class="row">
+        <div>
+          <strong>${escapeHtml(item.name)} · ${escapeHtml(item.title)}</strong>
+          <p>${escapeHtml(item.department)} · 入职 ${escapeHtml(item.onboardDate)} · 年假余额 ${escapeHtml(item.leaveBalance)} 天</p>
+        </div>
+        <div class="actions">
+          <span class="status">${employeeStatusText(item.status)}</span>
+          <button class="mini neutral" type="button" data-employee-detail="${escapeHtml(item.id)}">详情</button>
+        </div>
+      </div>
+    `)
+    .join("")
+    : `<p class="empty-state">没有找到符合条件的员工。换个关键词试试，别和数据库玩捉迷藏。</p>`;
+
+  leaveEmployeeSelect.innerHTML = state.bootstrap.employees
+    .filter((item) => item.status === "active")
+    .map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} · ${escapeHtml(item.department)}</option>`)
+    .join("");
+}
+
+function renderOrgControls() {
+  const departments = state.bootstrap.departments.filter((item) => item.status === "active");
+  const positions = state.bootstrap.positions.filter((item) => item.status === "active");
+  const departmentOptions = departments
+    .map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`)
+    .join("");
+  const positionOptions = positions
+    .map((item) => `<option value="${escapeHtml(item.title)}">${escapeHtml(item.title)} · ${escapeHtml(item.department)}</option>`)
+    .join("");
+
+  employeeDepartmentSelect.innerHTML = departmentOptions;
+  positionDepartmentSelect.innerHTML = departmentOptions;
+  employeePositionSelect.innerHTML = positionOptions;
+  departmentFilter.innerHTML = `<option value="all">全部部门</option>${departmentOptions}`;
+  positionFilter.innerHTML = `<option value="all">全部岗位</option>${positions
+    .map((item) => `<option value="${escapeHtml(item.title)}">${escapeHtml(item.title)}</option>`)
+    .join("")}`;
+  departmentFilter.value = state.employeeFilters.department;
+  positionFilter.value = state.employeeFilters.position;
+}
+
+function renderDepartments() {
+  departmentList.innerHTML = state.bootstrap.departments
+    .map((item) => {
+      const currentCount = state.bootstrap.employees.filter((employee) => employee.department === item.name).length;
+
+      return `
+        <article class="org-chip">
+          <strong>${escapeHtml(item.name)}</strong>
+          <span>${escapeHtml(item.owner)} · 当前 ${currentCount} 人 / 编制 ${escapeHtml(item.headcountPlan)}</span>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderPositions() {
+  positionList.innerHTML = state.bootstrap.positions
+    .map((item) => `
+      <article class="org-chip">
+        <strong>${escapeHtml(item.title)}</strong>
+        <span>${escapeHtml(item.department)} · ${escapeHtml(item.level)} · ${escapeHtml(item.salaryBand)}</span>
+      </article>
+    `)
+    .join("");
+}
+
+function getFilteredEmployees() {
+  const { query, department, position } = state.employeeFilters;
+
+  return state.bootstrap.employees.filter((employee) => {
+    const text = `${employee.name} ${employee.department} ${employee.title}`.toLowerCase();
+    const matchesQuery = !query || text.includes(query);
+    const matchesDepartment = department === "all" || employee.department === department;
+    const matchesPosition = position === "all" || employee.title === position;
+
+    return matchesQuery && matchesDepartment && matchesPosition;
+  });
+}
+
+function renderLeaveRequests() {
+  leaveList.innerHTML = state.bootstrap.leaveRequests
+    .map((item) => `
+      <div class="row">
+        <div>
+          <strong>${escapeHtml(item.employeeName)} · ${escapeHtml(item.type)} ${escapeHtml(item.days)} 天</strong>
+          <p>${escapeHtml(item.reason)} · 提交于 ${escapeHtml(item.submittedAt)}${item.reviewer ? ` · ${escapeHtml(item.reviewer)} 已处理` : ""}</p>
+        </div>
+        <div class="actions">
+          <span class="status ${statusClass(item.status)}">${statusText(item.status)}</span>
+          ${renderLeaveActions(item)}
+        </div>
+      </div>
+    `)
+    .join("");
+}
+
+function renderPayrollRuns() {
+  payrollList.innerHTML = state.bootstrap.payrollRuns
+    .map((item) => `
+      <div class="payroll-card">
+        <div class="payroll-head">
+          <div>
+            <strong>${escapeHtml(item.period)} 工资批次</strong>
+            <p>${escapeHtml(item.owner)} · ${escapeHtml(item.employeeCount)} 人</p>
+          </div>
+          <span class="status">${payrollStatusText(item.status)}</span>
+        </div>
+        <dl>
+          <div><dt>应发</dt><dd>${formatCurrency(item.grossPay)}</dd></div>
+          <div><dt>扣减</dt><dd>${formatCurrency(item.deductions)}</dd></div>
+          <div><dt>实发</dt><dd>${formatCurrency(item.netPay)}</dd></div>
+        </dl>
+        ${renderPayslipPreview(item)}
+      </div>
+    `)
+    .join("");
+}
+
+function renderAuditLogs() {
+  auditList.innerHTML = state.bootstrap.auditLogs
+    .map((item) => `
+      <div class="row">
+        <strong>${escapeHtml(item.message)}</strong>
+        <p>${escapeHtml(item.action)} · ${new Date(item.createdAt).toLocaleString("zh-CN")}</p>
+      </div>
+    `)
+    .join("");
+}
+
+function statusText(status) {
+  return {
+    pending: "待审批",
+    approved: "已通过",
+    review: "复核中",
+    rejected: "已拒绝"
+  }[status] || status;
+}
+
+function statusClass(status) {
+  return {
+    approved: "is-approved",
+    rejected: "is-rejected",
+    paid: "is-approved"
+  }[status] || "";
+}
+
+function renderLeaveActions(item) {
+  if (item.status !== "pending" && item.status !== "review") {
+    return "";
+  }
+
+  return `
+    <button class="mini approve" type="button" data-leave-id="${escapeHtml(item.id)}" data-leave-action="approved">通过</button>
+    <button class="mini reject" type="button" data-leave-id="${escapeHtml(item.id)}" data-leave-action="rejected">驳回</button>
+  `;
+}
+
+function renderPayslipPreview(payrollRun) {
+  const payslips = payrollRun.payslips || [];
+
+  if (!payslips.length) {
+    return `<p class="hint payroll-empty">还没有生成工资明细，点击上方按钮生成本月工资单。</p>`;
+  }
+
+  const preview = payslips.slice(0, 3)
+    .map((item) => `
+      <li>
+        <span>${escapeHtml(item.employeeName)} · ${escapeHtml(item.department)}</span>
+        <button class="link-button" type="button" data-payroll-id="${escapeHtml(payrollRun.id)}" data-payslip-detail="${escapeHtml(item.id)}">${formatCurrency(item.netPay)}</button>
+      </li>
+    `)
+    .join("");
+
+  return `
+    <ul class="payslip-preview">
+      ${preview}
+      ${payslips.length > 3 ? `<li><span>还有 ${payslips.length - 3} 人</span><strong>已生成</strong></li>` : ""}
+    </ul>
+  `;
+}
+
+function openEmployeeDetail(employeeId) {
+  const employee = state.bootstrap.employees.find((item) => item.id === employeeId);
+  if (!employee) {
+    return;
+  }
+
+  const leaves = state.bootstrap.leaveRequests.filter((item) => item.employeeId === employeeId);
+  const payslips = state.bootstrap.payrollRuns
+    .flatMap((run) => (run.payslips || []).map((slip) => ({ ...slip, period: run.period, status: run.status })))
+    .filter((item) => item.employeeId === employeeId);
+
+  dialogContent.innerHTML = `
+    <section class="detail-header">
+      <p class="eyebrow">Employee Detail</p>
+      <h2>${escapeHtml(employee.name)}</h2>
+      <p>${escapeHtml(employee.department)} · ${escapeHtml(employee.title)} · ${employeeStatusText(employee.status)}</p>
+    </section>
+    <section class="detail-stats">
+      <article><span>入职日期</span><strong>${escapeHtml(employee.onboardDate)}</strong></article>
+      <article><span>年假余额</span><strong>${escapeHtml(employee.leaveBalance)} 天</strong></article>
+      <article><span>基本工资</span><strong>${formatCurrency(employee.salaryBase)}</strong></article>
+    </section>
+    <section class="detail-section">
+      <h3>请假记录</h3>
+      ${renderDetailLeaves(leaves)}
+    </section>
+    <section class="detail-section">
+      <h3>工资记录</h3>
+      ${renderDetailPayslips(payslips)}
+    </section>
+  `;
+  openDialog();
+}
+
+function openHandbookDetail(articleId) {
+  const article = state.bootstrap.handbookArticles.find((item) => item.id === articleId);
+  if (!article) {
+    return;
+  }
+
+  dialogContent.innerHTML = `
+    <section class="detail-header">
+      <p class="eyebrow">Employee Handbook</p>
+      <h2>${escapeHtml(article.title)}</h2>
+      <p>${escapeHtml(article.category)} · ${escapeHtml(article.owner)} · 更新于 ${escapeHtml(article.updatedAt)}</p>
+    </section>
+    <section class="detail-section">
+      <h3>重点说明</h3>
+      <p class="policy-summary">${escapeHtml(article.summary)}</p>
+      <ol class="step-list">
+        ${article.content.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+      </ol>
+    </section>
+  `;
+  openDialog();
+}
+
+function openSopDetail(workflowId) {
+  const workflow = state.bootstrap.sopWorkflows.find((item) => item.id === workflowId);
+  if (!workflow) {
+    return;
+  }
+
+  dialogContent.innerHTML = `
+    <section class="detail-header">
+      <p class="eyebrow">SOP Workflow</p>
+      <h2>${escapeHtml(workflow.name)}</h2>
+      <p>${escapeHtml(workflow.department)} · ${escapeHtml(workflow.owner)} · ${escapeHtml(workflow.sla)}</p>
+    </section>
+    <section class="detail-section">
+      <h3>适用场景</h3>
+      <p class="policy-summary">${escapeHtml(workflow.scenario)}</p>
+      <ol class="step-list">
+        ${workflow.steps.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+      </ol>
+    </section>
+  `;
+  openDialog();
+}
+
+function openPayslipDetail(payrollId, payslipId) {
+  const payroll = state.bootstrap.payrollRuns.find((item) => item.id === payrollId);
+  const payslip = payroll?.payslips?.find((item) => item.id === payslipId);
+  if (!payroll || !payslip) {
+    return;
+  }
+
+  dialogContent.innerHTML = `
+    <section class="detail-header">
+      <p class="eyebrow">Payslip Detail</p>
+      <h2>${escapeHtml(payslip.employeeName)} · ${escapeHtml(payroll.period)} 工资单</h2>
+      <p>${escapeHtml(payslip.department)} · 批次状态：${payrollStatusText(payroll.status)}</p>
+    </section>
+    <section class="salary-breakdown">
+      <div><span>基本工资</span><strong>${formatCurrency(payslip.basePay)}</strong></div>
+      <div><span>补贴</span><strong>${formatCurrency(payslip.allowance)}</strong></div>
+      <div><span>应发</span><strong>${formatCurrency(payslip.grossPay)}</strong></div>
+      <div><span>扣减</span><strong>${formatCurrency(payslip.deductions)}</strong></div>
+      <div class="net"><span>实发</span><strong>${formatCurrency(payslip.netPay)}</strong></div>
+    </section>
+    <p class="hint">当前扣减为演示规则估算：社保加个人所得税。正式上线时应接入真实社保、公积金、个税和考勤规则。</p>
+  `;
+  openDialog();
+}
+
+function renderDetailLeaves(leaves) {
+  if (!leaves.length) {
+    return `<p class="empty-state">暂无请假记录。</p>`;
+  }
+
+  return `
+    <div class="detail-list">
+      ${leaves.map((item) => `
+        <div>
+          <strong>${escapeHtml(item.type)} ${escapeHtml(item.days)} 天</strong>
+          <span>${statusText(item.status)} · ${escapeHtml(item.submittedAt)} · ${escapeHtml(item.reason)}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderDetailPayslips(payslips) {
+  if (!payslips.length) {
+    return `<p class="empty-state">暂无工资单记录。</p>`;
+  }
+
+  return `
+    <div class="detail-list">
+      ${payslips.map((item) => `
+        <div>
+          <strong>${escapeHtml(item.period)} · ${formatCurrency(item.netPay)}</strong>
+          <span>${payrollStatusText(item.status)} · 应发 ${formatCurrency(item.grossPay)} · 扣减 ${formatCurrency(item.deductions)}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function openDialog() {
+  if (typeof detailDialog.showModal === "function") {
+    detailDialog.showModal();
+    return;
+  }
+
+  detailDialog.setAttribute("open", "");
+}
+
+function closeDialog() {
+  detailDialog.close();
+}
+
+function employeeStatusText(status) {
+  return {
+    active: "在职",
+    probation: "试用",
+    inactive: "离职"
+  }[status] || status;
+}
+
+function payrollStatusText(status) {
+  return {
+    draft: "草稿",
+    calculating: "结算中",
+    reviewed: "待发放",
+    paid: "已发放"
+  }[status] || status;
+}
+
+function formatMetric(key, value) {
+  if (key === "payrollTotal") {
+    return formatCurrency(value);
+  }
+
+  return value;
+}
+
+function formatCurrency(value) {
+  return new Intl.NumberFormat("zh-CN", {
+    style: "currency",
+    currency: "CNY",
+    maximumFractionDigits: 0
+  }).format(Number(value || 0));
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;")
+    .replaceAll("'", "&#039;");
+}

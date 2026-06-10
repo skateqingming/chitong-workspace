@@ -1,0 +1,6 @@
+build/
+.DS_Store
+DerivedData/
+.env
+node_modules/
+npm-debug.log*

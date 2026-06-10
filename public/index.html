@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#8f3f22">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="赤瞳工作空间">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>赤瞳工作空间</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/icon.svg">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Company Internal OS</p>
+          <h1>赤瞳工作空间</h1>
+        </div>
+        <div class="login-card" id="loginCard">
+          <h2>登录</h2>
+          <form id="loginForm">
+            <label>
+              邮箱
+              <input name="email" type="email" value="admin@company.local" autocomplete="username" required>
+            </label>
+            <label>
+              密码
+              <input name="password" type="password" value="admin123" autocomplete="current-password" required>
+            </label>
+            <button type="submit">进入工作台</button>
+            <p class="hint">演示账号见 README。正式环境需要接入企业身份系统。</p>
+          </form>
+        </div>
+      </section>
+
+      <section class="workspace is-hidden" id="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Workspace</p>
+            <h2 id="welcomeTitle">内部工作台</h2>
+          </div>
+          <button class="ghost" id="logoutButton">退出</button>
+        </header>
+
+        <section class="module-panel is-active" data-module-panel="work">
+          <section class="section-banner employee-banner">
+            <div>
+              <p class="eyebrow">Employee Workbench</p>
+              <h2>工作</h2>
+              <p>只显示和本人工作、项目协作、管理员通知相关的内容，打开就知道今天该先处理什么。</p>
+            </div>
+            <span class="pill">今日</span>
+          </section>
+
+          <section class="grid work-grid">
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Worksheets</p>
+                  <h3>我的工作表</h3>
+                </div>
+                <span class="pill">只看相关</span>
+              </div>
+              <div class="work-card-list" id="workSheetList"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Collaboration</p>
+                  <h3>项目协作</h3>
+                </div>
+                <span class="pill">同项目</span>
+              </div>
+              <div class="assignment-list" id="employeeAssignmentList"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Notice</p>
+                  <h3>通知</h3>
+                </div>
+                <span class="pill">管理员发布</span>
+              </div>
+              <div class="notice-list" id="noticeList"></div>
+            </article>
+          </section>
+        </section>
+
+        <section class="module-panel" data-module-panel="knowledge">
+        <section class="section-banner employee-banner">
+          <div>
+            <p class="eyebrow">Employee Portal</p>
+            <h2>知识库</h2>
+            <p>员工手册、SOP 工作流程、常用制度和操作步骤放在这里，先把“应该怎么做”讲清楚。</p>
+          </div>
+          <span class="pill">流程</span>
+        </section>
+
+        <section class="grid employee-grid">
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Handbook</p>
+                <h3>员工手册</h3>
+              </div>
+              <span class="pill">Policy</span>
+            </div>
+            <section class="filters" aria-label="员工手册搜索">
+              <input id="handbookSearchInput" type="search" placeholder="搜索手册，例如：报销、考勤、安全">
+              <select id="handbookCategoryFilter"></select>
+            </section>
+            <div class="knowledge-list" id="handbookList"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">SOP</p>
+                <h3>工作流程</h3>
+              </div>
+              <span class="pill">Step by Step</span>
+            </div>
+            <section class="filters" aria-label="SOP 搜索">
+              <input id="sopSearchInput" type="search" placeholder="搜索 SOP，例如：请假、报销、设备">
+              <select id="sopDepartmentFilter"></select>
+            </section>
+            <div class="knowledge-list" id="sopList"></div>
+          </article>
+        </section>
+        </section>
+
+        <section class="module-panel" data-module-panel="payroll">
+          <section class="section-banner payroll-banner">
+            <div>
+              <p class="eyebrow">KFS Payroll</p>
+              <h2>绩效结算</h2>
+              <p>KFS 模式默认按 K=关键成果、F=流程效率、S=服务协作 来计算绩效系数，方便财务和主管快速复核。</p>
+            </div>
+            <span class="pill">KFS 模式</span>
+          </section>
+
+          <section class="grid employee-grid">
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">KFS Score</p>
+                  <h3>绩效评分</h3>
+                </div>
+                <span class="pill">K / F / S</span>
+              </div>
+              <div class="kfs-list" id="kfsList"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Settlement</p>
+                  <h3>结算预览</h3>
+                </div>
+                <button class="ghost compact-button" id="generatePayrollButton" type="button">生成本月工资单</button>
+              </div>
+              <div class="list" id="payrollList"></div>
+            </article>
+          </section>
+        </section>
+
+        <section class="module-panel" data-module-panel="admin">
+        <section class="section-banner admin-banner">
+          <div>
+            <p class="eyebrow">Admin Console</p>
+            <h2>管理</h2>
+            <p>员工档案、部门岗位、请假审批、工资结算和审计日志属于管理功能，后续会接入真实角色权限。</p>
+          </div>
+          <span class="pill">组织</span>
+        </section>
+
+        <section class="metrics" id="metrics"></section>
+
+        <section class="grid hr-grid">
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">People</p>
+                <h3>员工档案</h3>
+              </div>
+              <span class="pill">HR Master</span>
+            </div>
+            <form class="quick-form employee-form" id="employeeForm">
+              <input name="name" placeholder="员工姓名" required>
+              <select name="department" id="employeeDepartmentSelect" required></select>
+              <select name="title" id="employeePositionSelect" required></select>
+              <input name="salaryBase" type="number" min="0" placeholder="基本工资">
+              <button type="submit">入职</button>
+            </form>
+            <section class="filters" aria-label="员工筛选">
+              <input id="employeeSearchInput" type="search" placeholder="搜索姓名、部门、岗位">
+              <select id="departmentFilter"></select>
+              <select id="positionFilter"></select>
+            </section>
+            <div class="list" id="employeeList"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Org</p>
+                <h3>部门管理</h3>
+              </div>
+              <span class="pill">Structure</span>
+            </div>
+            <form class="quick-form org-form" id="departmentForm">
+              <input name="name" placeholder="部门名称" required>
+              <input name="owner" placeholder="负责人" required>
+              <input name="headcountPlan" type="number" min="0" placeholder="编制">
+              <button type="submit">新增</button>
+            </form>
+            <div class="chip-list" id="departmentList"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Position</p>
+                <h3>岗位管理</h3>
+              </div>
+              <span class="pill">Job Map</span>
+            </div>
+            <form class="quick-form position-form" id="positionForm">
+              <input name="title" placeholder="岗位名称" required>
+              <select name="department" id="positionDepartmentSelect" required></select>
+              <input name="level" placeholder="职级，例如：P2">
+              <input name="salaryBand" placeholder="薪资带，例如：12k-18k">
+              <button type="submit">新增</button>
+            </form>
+            <div class="chip-list" id="positionList"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Leave</p>
+                <h3>请假审批</h3>
+              </div>
+              <span class="pill">Workflow</span>
+            </div>
+            <form class="quick-form leave-form" id="leaveForm">
+              <select name="employeeId" id="leaveEmployeeSelect" required></select>
+              <input name="type" placeholder="类型，例如：年假" required>
+              <input name="days" type="number" min="0.5" step="0.5" placeholder="天数" required>
+              <input name="reason" placeholder="请假原因">
+              <button type="submit">提交</button>
+            </form>
+            <div class="list" id="leaveList"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Arrangement</p>
+                <h3>人员安排</h3>
+              </div>
+              <span class="pill">排班/项目</span>
+            </div>
+            <div class="assignment-list" id="assignmentList"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Schedule</p>
+                <h3>日程与项目管理</h3>
+              </div>
+              <span class="pill">管理员操作</span>
+            </div>
+            <div class="timeline-list" id="scheduleList"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Audit</p>
+                <h3>审计日志</h3>
+              </div>
+              <span class="pill">Traceable</span>
+            </div>
+            <div class="list compact" id="auditList"></div>
+          </article>
+        </section>
+        </section>
+      </section>
+
+      <nav class="bottom-nav is-hidden" id="bottomNav" aria-label="主模块导航">
+        <button class="bottom-nav-item is-active" type="button" data-module-target="work">
+          <span>工作</span>
+        </button>
+        <button class="bottom-nav-item" type="button" data-module-target="knowledge">
+          <span>知识</span>
+        </button>
+        <button class="bottom-nav-item" type="button" data-module-target="payroll">
+          <span>绩效</span>
+        </button>
+        <button class="bottom-nav-item" type="button" data-module-target="admin">
+          <span>管理</span>
+        </button>
+      </nav>
+
+      <dialog class="detail-dialog" id="detailDialog">
+        <div class="dialog-shell">
+          <button class="dialog-close" id="dialogCloseButton" type="button" aria-label="关闭详情">关闭</button>
+          <div id="dialogContent"></div>
+        </div>
+      </dialog>
+    </main>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

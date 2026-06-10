@@ -1,0 +1,15 @@
+{
+  "name": "internal-app-starter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Company internal app starter with a no-dependency Node server and browser UI.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node server.js --check",
+    "db:seed:export": "node scripts/export-seed-sql.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
