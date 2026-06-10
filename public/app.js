@@ -60,9 +60,32 @@ const logoutButton = document.querySelector("#logoutButton");
 const detailDialog = document.querySelector("#detailDialog");
 const dialogContent = document.querySelector("#dialogContent");
 const dialogCloseButton = document.querySelector("#dialogCloseButton");
+const nativeFetch = window.fetch.bind(window);
+const staticStorageKey = "chitong-static-data";
+let staticDataPromise = null;
+
+window.fetch = async (resource, options = {}) => {
+  const requestUrl = typeof resource === "string" ? resource : resource.url;
+  const pathname = new URL(requestUrl, window.location.href).pathname;
+
+  if (!pathname.includes("/api/")) {
+    return nativeFetch(resource, options);
+  }
+
+  try {
+    const response = await nativeFetch(resource, options);
+    if (response.status !== 404) {
+      return response;
+    }
+  } catch {
+    // Static hosting has no API server; the local fallback below keeps the preview usable.
+  }
+
+  return handleStaticApi(pathname, options);
+};
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js").catch(() => {
+  navigator.serviceWorker.register("sw.js").catch(() => {
     // The app still works without offline caching, especially during local HTTP testing.
   });
 }
@@ -342,6 +365,258 @@ async function loadWorkspace() {
   renderAuditLogs();
   renderRoleNavigation();
   setActiveModule(getAllowedModules()[0]);
+}
+
+async function handleStaticApi(pathname, options = {}) {
+  const endpoint = pathname.slice(pathname.indexOf("/api/") + 5);
+  const method = String(options.method || "GET").toUpperCase();
+  const data = await getStaticData();
+  const body = options.body ? JSON.parse(options.body) : {};
+
+  if (method === "POST" && endpoint === "login") {
+    const user = data.users.find((item) => item.email === body.email && item.password === body.password);
+
+    if (!user) {
+      return jsonResponse(401, { error: "账号或密码不正确。" });
+    }
+
+    appendStaticAuditLog(data, user.id, "login", "用户登录系统");
+    saveStaticData(data);
+    return jsonResponse(200, {
+      user: toPublicUser(user),
+      token: btoa(`${user.id}:${Date.now()}`)
+    });
+  }
+
+  if (method === "GET" && endpoint === "bootstrap") {
+    return jsonResponse(200, staticBootstrap(data));
+  }
+
+  if (method === "POST" && endpoint === "employees") {
+    const employee = {
+      id: `EMP-${String(data.employees.length + 1).padStart(4, "0")}`,
+      name: String(body.name || "未命名员工"),
+      department: String(body.department || "未分配"),
+      title: String(body.title || "待定岗位"),
+      status: "active",
+      onboardDate: new Date().toISOString().slice(0, 10),
+      leaveBalance: Number(body.leaveBalance || 5),
+      salaryBase: Number(body.salaryBase || 8000)
+    };
+    data.employees.unshift(employee);
+    refreshStaticMetrics(data);
+    appendStaticAuditLog(data, "user-001", "create_employee", `新增员工：${employee.name}`);
+    saveStaticData(data);
+    return jsonResponse(201, { employee });
+  }
+
+  if (method === "POST" && endpoint === "departments") {
+    const department = {
+      id: `DEP-${String(data.departments.length + 1).padStart(4, "0")}`,
+      name: String(body.name || "未命名部门"),
+      owner: String(body.owner || "待定负责人"),
+      headcountPlan: Number(body.headcountPlan || 0),
+      status: "active"
+    };
+    data.departments.unshift(department);
+    appendStaticAuditLog(data, "user-001", "create_department", `新增部门：${department.name}`);
+    saveStaticData(data);
+    return jsonResponse(201, { department });
+  }
+
+  if (method === "POST" && endpoint === "positions") {
+    const position = {
+      id: `POS-${String(data.positions.length + 1).padStart(4, "0")}`,
+      title: String(body.title || "未命名岗位"),
+      department: String(body.department || "未分配"),
+      level: String(body.level || "P1"),
+      salaryBand: String(body.salaryBand || "待定"),
+      status: "active"
+    };
+    data.positions.unshift(position);
+    appendStaticAuditLog(data, "user-001", "create_position", `新增岗位：${position.title}`);
+    saveStaticData(data);
+    return jsonResponse(201, { position });
+  }
+
+  if (method === "POST" && endpoint === "leave-requests") {
+    const employee = data.employees.find((item) => item.id === body.employeeId);
+    const leaveRequest = {
+      id: `LEV-${String(data.leaveRequests.length + 1).padStart(4, "0")}`,
+      employeeId: String(body.employeeId || ""),
+      employeeName: employee?.name || String(body.employeeName || "未知员工"),
+      type: String(body.type || "年假"),
+      days: Number(body.days || 1),
+      reason: String(body.reason || "未填写原因"),
+      status: "pending",
+      submittedAt: new Date().toISOString().slice(0, 10)
+    };
+    data.leaveRequests.unshift(leaveRequest);
+    refreshStaticMetrics(data);
+    appendStaticAuditLog(data, "user-002", "create_leave_request", `新增请假申请：${leaveRequest.employeeName} ${leaveRequest.days} 天`);
+    saveStaticData(data);
+    return jsonResponse(201, { leaveRequest });
+  }
+
+  if (method === "POST" && endpoint === "leave-requests/action") {
+    const leaveRequest = data.leaveRequests.find((item) => item.id === body.id);
+    const action = String(body.action || "");
+
+    if (!leaveRequest) {
+      return jsonResponse(404, { error: "请假申请不存在。" });
+    }
+
+    if (!["approved", "rejected"].includes(action)) {
+      return jsonResponse(400, { error: "审批动作不正确。" });
+    }
+
+    leaveRequest.status = action;
+    leaveRequest.reviewedAt = new Date().toISOString();
+    leaveRequest.reviewer = "周主管";
+
+    if (action === "approved") {
+      const employee = data.employees.find((item) => item.id === leaveRequest.employeeId);
+      if (employee) {
+        employee.leaveBalance = Math.max(0, Number(employee.leaveBalance || 0) - Number(leaveRequest.days || 0));
+      }
+    }
+
+    refreshStaticMetrics(data);
+    appendStaticAuditLog(data, "user-002", action === "approved" ? "approve_leave_request" : "reject_leave_request", `${action === "approved" ? "通过" : "驳回"}请假申请：${leaveRequest.employeeName} ${leaveRequest.days} 天`);
+    saveStaticData(data);
+    return jsonResponse(200, { leaveRequest });
+  }
+
+  if (method === "POST" && endpoint === "payroll-runs/generate") {
+    const period = new Date().toISOString().slice(0, 7);
+    const activeEmployees = data.employees.filter((item) => item.status === "active");
+    const payslips = activeEmployees.map((employee) => createStaticPayslip(employee, period));
+    const totals = payslips.reduce((summary, item) => ({
+      grossPay: summary.grossPay + item.grossPay,
+      deductions: summary.deductions + item.deductions,
+      netPay: summary.netPay + item.netPay
+    }), { grossPay: 0, deductions: 0, netPay: 0 });
+    const payrollRun = {
+      id: `PAY-${period}`,
+      period,
+      status: "reviewed",
+      employeeCount: activeEmployees.length,
+      grossPay: totals.grossPay,
+      deductions: totals.deductions,
+      netPay: totals.netPay,
+      owner: "许会计",
+      generatedAt: new Date().toISOString(),
+      payslips
+    };
+    const existingIndex = data.payrollRuns.findIndex((item) => item.id === payrollRun.id);
+    if (existingIndex >= 0) {
+      data.payrollRuns[existingIndex] = { ...data.payrollRuns[existingIndex], ...payrollRun };
+    } else {
+      data.payrollRuns.unshift(payrollRun);
+    }
+    refreshStaticMetrics(data);
+    appendStaticAuditLog(data, "user-001", "generate_payroll", `生成 ${period} 工资单：${activeEmployees.length} 人`);
+    saveStaticData(data);
+    return jsonResponse(201, { payrollRun });
+  }
+
+  return jsonResponse(404, { error: "接口不存在。" });
+}
+
+async function getStaticData() {
+  if (staticDataPromise) {
+    return staticDataPromise;
+  }
+
+  staticDataPromise = (async () => {
+    const stored = localStorage.getItem(staticStorageKey);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+
+    const response = await nativeFetch("data/app.json");
+    if (!response.ok) {
+      throw new Error("静态演示数据加载失败。");
+    }
+    return response.json();
+  })();
+
+  return staticDataPromise;
+}
+
+function saveStaticData(data) {
+  localStorage.setItem(staticStorageKey, JSON.stringify(data));
+  staticDataPromise = Promise.resolve(data);
+}
+
+function staticBootstrap(data) {
+  return {
+    metrics: data.metrics,
+    approvals: data.approvals,
+    employees: data.employees,
+    departments: data.departments,
+    positions: data.positions,
+    handbookArticles: data.handbookArticles,
+    sopWorkflows: data.sopWorkflows,
+    workSheets: data.workSheets,
+    schedules: data.schedules,
+    notices: data.notices,
+    staffAssignments: data.staffAssignments,
+    kfsScores: data.kfsScores,
+    leaveRequests: data.leaveRequests,
+    payrollRuns: data.payrollRuns,
+    auditLogs: data.auditLogs.slice(-8).reverse(),
+    roles: data.roles
+  };
+}
+
+function appendStaticAuditLog(data, userId, action, message) {
+  data.auditLogs.push({
+    id: `LOG-${Date.now()}`,
+    userId,
+    action,
+    message,
+    createdAt: new Date().toISOString()
+  });
+}
+
+function refreshStaticMetrics(data) {
+  data.metrics.employeeCount = data.employees.filter((item) => item.status === "active").length;
+  data.metrics.pendingLeaves = data.leaveRequests.filter((item) => item.status === "pending").length;
+  data.metrics.payrollTotal = Number(data.payrollRuns[0]?.grossPay || 0);
+}
+
+function createStaticPayslip(employee, period) {
+  const basePay = Number(employee.salaryBase || 0);
+  const allowance = Math.round(basePay * 0.08);
+  const socialSecurity = Math.round(basePay * 0.11);
+  const tax = Math.round(Math.max(0, basePay + allowance - socialSecurity - 5000) * 0.08);
+  const deductions = socialSecurity + tax;
+  const grossPay = basePay + allowance;
+
+  return {
+    id: `SLIP-${period}-${employee.id}`,
+    employeeId: employee.id,
+    employeeName: employee.name,
+    department: employee.department,
+    basePay,
+    allowance,
+    grossPay,
+    deductions,
+    netPay: grossPay - deductions
+  };
+}
+
+function toPublicUser(user) {
+  const { password, ...safeUser } = user;
+  return safeUser;
+}
+
+function jsonResponse(status, payload) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { "Content-Type": "application/json; charset=utf-8" }
+  });
 }
 
 function setActiveModule(moduleName) {

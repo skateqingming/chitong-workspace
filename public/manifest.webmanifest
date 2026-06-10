@@ -2,14 +2,14 @@
   "name": "赤瞳工作空间",
   "short_name": "赤瞳空间",
   "description": "公司内部人员管理、请假审批与工资结算工作台。",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": ".",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#fbf6ea",
   "theme_color": "#8f3f22",
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
