@@ -59,6 +59,24 @@
             <article class="panel">
               <div class="panel-heading">
                 <div>
+                  <p class="eyebrow">Profile</p>
+                  <h3>个人资料</h3>
+                </div>
+                <span class="pill">可修改</span>
+              </div>
+              <form class="quick-form profile-form" id="profileForm">
+                <input name="phone" placeholder="手机号">
+                <input name="emergencyContact" placeholder="紧急联系人">
+                <input name="address" placeholder="现住地址">
+                <input name="skills" placeholder="技能标签，例如：摄影、灯光、剪辑">
+                <button type="submit">保存资料</button>
+              </form>
+              <div class="profile-summary" id="profileSummary"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
                   <p class="eyebrow">Worksheets</p>
                   <h3>我的工作表</h3>
                 </div>
@@ -87,6 +105,17 @@
                 <span class="pill">管理员发布</span>
               </div>
               <div class="notice-list" id="noticeList"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Schedule</p>
+                  <h3>我的日程</h3>
+                </div>
+                <span class="pill">今日安排</span>
+              </div>
+              <div class="timeline-list" id="employeeScheduleList"></div>
             </article>
           </section>
         </section>
@@ -182,6 +211,43 @@
         <section class="metrics" id="metrics"></section>
 
         <section class="grid hr-grid">
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Announcement</p>
+                <h3>发布公告</h3>
+              </div>
+              <span class="pill">员工可见</span>
+            </div>
+            <form class="quick-form notice-form" id="noticeForm">
+              <input name="title" placeholder="公告标题" required>
+              <select name="department" id="noticeDepartmentSelect" required></select>
+              <input name="priority" placeholder="类型，例如：重要、提醒、财务" required>
+              <input name="content" placeholder="公告内容" required>
+              <button type="submit">发布</button>
+            </form>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Schedule Edit</p>
+                <h3>填写日程</h3>
+              </div>
+              <span class="pill">新增/修改</span>
+            </div>
+            <form class="quick-form schedule-form" id="scheduleForm">
+              <input name="time" placeholder="时间，例如：10:30" required>
+              <input name="title" placeholder="日程标题" required>
+              <select name="department" id="scheduleDepartmentSelect" required></select>
+              <input name="location" placeholder="地点" required>
+              <input name="owner" placeholder="负责人" required>
+              <input name="scheduleId" id="scheduleIdInput" type="hidden">
+              <button type="submit" id="scheduleSubmitButton">保存日程</button>
+            </form>
+            <button class="ghost compact-button" id="scheduleCancelButton" type="button">取消修改</button>
+          </article>
+
           <article class="panel">
             <div class="panel-heading">
               <div>

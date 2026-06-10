@@ -62,6 +62,10 @@ create table if not exists employees (
   onboard_date date not null,
   leave_balance numeric(6, 2) not null default 0,
   salary_base numeric(12, 2) not null default 0,
+  phone text not null default '',
+  emergency_contact text not null default '',
+  address text not null default '',
+  skills jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

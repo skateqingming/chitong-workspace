@@ -37,11 +37,11 @@ insert into app_users (id, name, email, demo_password, role_id, department_id, d
   ('user-003', '陈摄影', 'user@company.local', 'user123', 'employee', 'DEP-0001', '摄影部')
 on conflict do nothing;
 
-insert into employees (id, name, department_id, department_name, title, status, onboard_date, leave_balance, salary_base) values
-  ('EMP-0001', '林制片', 'DEP-0001', '摄影部', '摄影总监', 'active', '2022-03-12', 9, 28000),
-  ('EMP-0002', '周剪辑', 'DEP-0002', '剪辑部', '剪辑主管', 'active', '2023-07-01', 6, 22000),
-  ('EMP-0003', '陈摄影', 'DEP-0001', '摄影部', '摄影师', 'active', '2025-02-18', 4, 15000),
-  ('EMP-0004', '许会计', 'DEP-0003', '财务部', '薪资会计', 'active', '2024-04-08', 7, 16000)
+insert into employees (id, name, department_id, department_name, title, status, onboard_date, leave_balance, salary_base, phone, emergency_contact, address, skills) values
+  ('EMP-0001', '林制片', 'DEP-0001', '摄影部', '摄影总监', 'active', '2022-03-12', 9, 28000, '13800000001', '林家属 13800001001', '上海市徐汇区', '["统筹","摄影","现场调度"]'::jsonb),
+  ('EMP-0002', '周剪辑', 'DEP-0002', '剪辑部', '剪辑主管', 'active', '2023-07-01', 6, 22000, '13800000002', '周家属 13800001002', '上海市长宁区', '["剪辑","调色","交付管理"]'::jsonb),
+  ('EMP-0003', '陈摄影', 'DEP-0001', '摄影部', '摄影师', 'active', '2025-02-18', 4, 15000, '13800000003', '陈家属 13800001003', '上海市静安区', '["摄影","灯光","素材管理"]'::jsonb),
+  ('EMP-0004', '许会计', 'DEP-0003', '财务部', '薪资会计', 'active', '2024-04-08', 7, 16000, '13800000004', '许家属 13800001004', '上海市普陀区', '["工资核算","报销","风险提醒"]'::jsonb)
 on conflict do nothing;
 
 insert into handbook_articles (id, category, title, summary, owner, updated_at, content) values

@@ -27,7 +27,10 @@ const metrics = document.querySelector("#metrics");
 const modulePanels = document.querySelectorAll("[data-module-panel]");
 const moduleNavItems = document.querySelectorAll("[data-module-target]");
 const workSheetList = document.querySelector("#workSheetList");
+const profileForm = document.querySelector("#profileForm");
+const profileSummary = document.querySelector("#profileSummary");
 const scheduleList = document.querySelector("#scheduleList");
+const employeeScheduleList = document.querySelector("#employeeScheduleList");
 const employeeAssignmentList = document.querySelector("#employeeAssignmentList");
 const noticeList = document.querySelector("#noticeList");
 const handbookList = document.querySelector("#handbookList");
@@ -43,9 +46,16 @@ const auditList = document.querySelector("#auditList");
 const employeeForm = document.querySelector("#employeeForm");
 const departmentForm = document.querySelector("#departmentForm");
 const positionForm = document.querySelector("#positionForm");
+const noticeForm = document.querySelector("#noticeForm");
+const scheduleForm = document.querySelector("#scheduleForm");
 const employeeDepartmentSelect = document.querySelector("#employeeDepartmentSelect");
 const employeePositionSelect = document.querySelector("#employeePositionSelect");
 const positionDepartmentSelect = document.querySelector("#positionDepartmentSelect");
+const noticeDepartmentSelect = document.querySelector("#noticeDepartmentSelect");
+const scheduleDepartmentSelect = document.querySelector("#scheduleDepartmentSelect");
+const scheduleIdInput = document.querySelector("#scheduleIdInput");
+const scheduleSubmitButton = document.querySelector("#scheduleSubmitButton");
+const scheduleCancelButton = document.querySelector("#scheduleCancelButton");
 const employeeSearchInput = document.querySelector("#employeeSearchInput");
 const departmentFilter = document.querySelector("#departmentFilter");
 const positionFilter = document.querySelector("#positionFilter");
@@ -121,6 +131,25 @@ logoutButton.addEventListener("click", () => {
   loginCard.classList.remove("is-hidden");
 });
 
+profileForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const formData = new FormData(profileForm);
+
+  const response = await fetch("/api/profile", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(Object.fromEntries(formData.entries()))
+  });
+
+  if (!response.ok) {
+    const result = await response.json();
+    alert(result.error || "保存资料失败");
+    return;
+  }
+
+  await loadWorkspace();
+});
+
 employeeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(employeeForm);
@@ -180,6 +209,48 @@ positionForm.addEventListener("submit", async (event) => {
   positionForm.reset();
   await loadWorkspace();
 });
+
+noticeForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const formData = new FormData(noticeForm);
+
+  const response = await fetch("/api/notices", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(Object.fromEntries(formData.entries()))
+  });
+
+  if (!response.ok) {
+    const result = await response.json();
+    alert(result.error || "发布公告失败");
+    return;
+  }
+
+  noticeForm.reset();
+  await loadWorkspace();
+});
+
+scheduleForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const formData = new FormData(scheduleForm);
+
+  const response = await fetch("/api/schedules", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(Object.fromEntries(formData.entries()))
+  });
+
+  if (!response.ok) {
+    const result = await response.json();
+    alert(result.error || "保存日程失败");
+    return;
+  }
+
+  resetScheduleForm();
+  await loadWorkspace();
+});
+
+scheduleCancelButton.addEventListener("click", resetScheduleForm);
 
 employeeSearchInput.addEventListener("input", () => {
   state.employeeFilters.query = employeeSearchInput.value.trim().toLowerCase();
@@ -287,6 +358,15 @@ leaveList.addEventListener("click", async (event) => {
   await loadWorkspace();
 });
 
+scheduleList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-schedule-edit]");
+  if (!button) {
+    return;
+  }
+
+  startScheduleEdit(button.dataset.scheduleEdit);
+});
+
 generatePayrollButton.addEventListener("click", async () => {
   generatePayrollButton.disabled = true;
   generatePayrollButton.textContent = "生成中...";
@@ -348,9 +428,11 @@ async function loadWorkspace() {
   welcomeTitle.textContent = state.user.name;
 
   renderMetrics();
+  renderProfile();
   renderWorkSheets();
   renderEmployeeAssignments();
   renderNotices();
+  renderEmployeeSchedules();
   renderSchedules();
   renderEmployeePortalControls();
   renderHandbookArticles();
@@ -391,6 +473,26 @@ async function handleStaticApi(pathname, options = {}) {
 
   if (method === "GET" && endpoint === "bootstrap") {
     return jsonResponse(200, staticBootstrap(data));
+  }
+
+  if (method === "POST" && endpoint === "profile") {
+    const employee = findCurrentStaticEmployee(data);
+
+    if (!employee) {
+      return jsonResponse(404, { error: "没有找到当前员工档案。" });
+    }
+
+    employee.phone = String(body.phone || "");
+    employee.emergencyContact = String(body.emergencyContact || "");
+    employee.address = String(body.address || "");
+    employee.skills = String(body.skills || "")
+      .split(/[,，、]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+    employee.updatedAt = new Date().toISOString();
+    appendStaticAuditLog(data, state.user.id, "update_profile", `更新个人资料：${employee.name}`);
+    saveStaticData(data);
+    return jsonResponse(200, { employee });
   }
 
   if (method === "POST" && endpoint === "employees") {
@@ -438,6 +540,43 @@ async function handleStaticApi(pathname, options = {}) {
     appendStaticAuditLog(data, "user-001", "create_position", `新增岗位：${position.title}`);
     saveStaticData(data);
     return jsonResponse(201, { position });
+  }
+
+  if (method === "POST" && endpoint === "notices") {
+    const notice = {
+      id: `NTC-${String(data.notices.length + 1).padStart(4, "0")}`,
+      title: String(body.title || "未命名公告"),
+      department: String(body.department || "全员"),
+      publisher: state.user?.name || "管理员",
+      priority: String(body.priority || "通知"),
+      publishedAt: new Date().toISOString().slice(0, 10),
+      content: String(body.content || "")
+    };
+    data.notices.unshift(notice);
+    appendStaticAuditLog(data, state.user?.id || "user-001", "create_notice", `发布公告：${notice.title}`);
+    saveStaticData(data);
+    return jsonResponse(201, { notice });
+  }
+
+  if (method === "POST" && endpoint === "schedules") {
+    const scheduleId = String(body.scheduleId || "");
+    const schedule = {
+      id: scheduleId || `SCH-${String(data.schedules.length + 1).padStart(4, "0")}`,
+      time: String(body.time || "09:30"),
+      title: String(body.title || "未命名日程"),
+      department: String(body.department || "全员"),
+      location: String(body.location || "待定"),
+      owner: String(body.owner || state.user?.name || "管理员")
+    };
+    const existingIndex = data.schedules.findIndex((item) => item.id === schedule.id);
+    if (existingIndex >= 0) {
+      data.schedules[existingIndex] = schedule;
+    } else {
+      data.schedules.unshift(schedule);
+    }
+    appendStaticAuditLog(data, state.user?.id || "user-001", existingIndex >= 0 ? "update_schedule" : "create_schedule", `${existingIndex >= 0 ? "修改" : "新增"}日程：${schedule.title}`);
+    saveStaticData(data);
+    return jsonResponse(existingIndex >= 0 ? 200 : 201, { schedule });
   }
 
   if (method === "POST" && endpoint === "leave-requests") {
@@ -608,6 +747,11 @@ function createStaticPayslip(employee, period) {
   };
 }
 
+function findCurrentStaticEmployee(data) {
+  return data.employees.find((employee) => employee.name === state.user?.name)
+    || data.employees.find((employee) => employee.department === state.user?.department);
+}
+
 function toPublicUser(user) {
   const { password, ...safeUser } = user;
   return safeUser;
@@ -764,6 +908,30 @@ function renderWorkSheets() {
     : `<p class="empty-state">暂时没有和你相关的工作表。</p>`;
 }
 
+function renderProfile() {
+  const employee = getCurrentEmployee();
+  if (!employee) {
+    profileSummary.innerHTML = `<p class="empty-state">暂时没有匹配到你的员工档案。</p>`;
+    return;
+  }
+
+  profileForm.elements.phone.value = employee.phone || "";
+  profileForm.elements.emergencyContact.value = employee.emergencyContact || "";
+  profileForm.elements.address.value = employee.address || "";
+  profileForm.elements.skills.value = Array.isArray(employee.skills) ? employee.skills.join("、") : (employee.skills || "");
+  profileSummary.innerHTML = `
+    <article class="profile-card">
+      <strong>${escapeHtml(employee.name)} · ${escapeHtml(employee.title)}</strong>
+      <p>${escapeHtml(employee.department)} · 手机 ${escapeHtml(employee.phone || "未填写")}</p>
+      <p>紧急联系人：${escapeHtml(employee.emergencyContact || "未填写")}</p>
+      <p>地址：${escapeHtml(employee.address || "未填写")}</p>
+      <div class="mini-grid">
+        ${(Array.isArray(employee.skills) ? employee.skills : []).map((skill) => `<span>${escapeHtml(skill)}</span>`).join("") || "<span>暂无技能标签</span>"}
+      </div>
+    </article>
+  `;
+}
+
 function renderSchedules() {
   scheduleList.innerHTML = state.bootstrap.schedules
     .map((item) => `
@@ -772,10 +940,27 @@ function renderSchedules() {
         <div>
           <strong>${escapeHtml(item.title)}</strong>
           <p>${escapeHtml(item.department)} · ${escapeHtml(item.location)} · ${escapeHtml(item.owner)}</p>
+          <button class="mini neutral" type="button" data-schedule-edit="${escapeHtml(item.id)}">修改</button>
         </div>
       </article>
     `)
     .join("");
+}
+
+function renderEmployeeSchedules() {
+  const schedules = getVisibleSchedules();
+
+  employeeScheduleList.innerHTML = schedules.length
+    ? schedules.map((item) => `
+      <article class="timeline-item">
+        <time>${escapeHtml(item.time)}</time>
+        <div>
+          <strong>${escapeHtml(item.title)}</strong>
+          <p>${escapeHtml(item.department)} · ${escapeHtml(item.location)} · ${escapeHtml(item.owner)}</p>
+        </div>
+      </article>
+    `).join("")
+    : `<p class="empty-state">今天暂时没有和你相关的日程。</p>`;
 }
 
 function renderEmployeeAssignments() {
@@ -883,6 +1068,18 @@ function getVisibleNotices() {
   });
 }
 
+function getVisibleSchedules() {
+  if (canManage()) {
+    return state.bootstrap.schedules;
+  }
+
+  return state.bootstrap.schedules.filter((item) => {
+    return item.department === "全员"
+      || item.department === state.user.department
+      || item.owner === state.user.name;
+  });
+}
+
 function isCurrentUserRelated(item) {
   const participants = item.participants || [];
   return item.owner === state.user.name
@@ -893,6 +1090,11 @@ function isCurrentUserRelated(item) {
 
 function canManage() {
   return state.user?.role === "admin" || state.user?.role === "manager";
+}
+
+function getCurrentEmployee() {
+  return state.bootstrap.employees.find((employee) => employee.name === state.user?.name)
+    || state.bootstrap.employees.find((employee) => employee.department === state.user?.department);
 }
 
 function renderEmployees() {
@@ -927,12 +1129,15 @@ function renderOrgControls() {
   const departmentOptions = departments
     .map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`)
     .join("");
+  const communicationDepartmentOptions = `<option value="全员">全员</option>${departmentOptions}`;
   const positionOptions = positions
     .map((item) => `<option value="${escapeHtml(item.title)}">${escapeHtml(item.title)} · ${escapeHtml(item.department)}</option>`)
     .join("");
 
   employeeDepartmentSelect.innerHTML = departmentOptions;
   positionDepartmentSelect.innerHTML = departmentOptions;
+  noticeDepartmentSelect.innerHTML = communicationDepartmentOptions;
+  scheduleDepartmentSelect.innerHTML = communicationDepartmentOptions;
   employeePositionSelect.innerHTML = positionOptions;
   departmentFilter.innerHTML = `<option value="all">全部部门</option>${departmentOptions}`;
   positionFilter.innerHTML = `<option value="all">全部岗位</option>${positions
@@ -940,6 +1145,27 @@ function renderOrgControls() {
     .join("")}`;
   departmentFilter.value = state.employeeFilters.department;
   positionFilter.value = state.employeeFilters.position;
+}
+
+function startScheduleEdit(scheduleId) {
+  const schedule = state.bootstrap.schedules.find((item) => item.id === scheduleId);
+  if (!schedule) {
+    return;
+  }
+
+  scheduleForm.elements.time.value = schedule.time || "";
+  scheduleForm.elements.title.value = schedule.title || "";
+  scheduleForm.elements.department.value = schedule.department || "全员";
+  scheduleForm.elements.location.value = schedule.location || "";
+  scheduleForm.elements.owner.value = schedule.owner || "";
+  scheduleIdInput.value = schedule.id;
+  scheduleSubmitButton.textContent = "保存修改";
+}
+
+function resetScheduleForm() {
+  scheduleForm.reset();
+  scheduleIdInput.value = "";
+  scheduleSubmitButton.textContent = "保存日程";
 }
 
 function renderDepartments() {

@@ -353,6 +353,12 @@ button:disabled {
   gap: 10px;
 }
 
+.profile-form,
+.notice-form,
+.schedule-form {
+  grid-template-columns: 1fr;
+}
+
 .employee-form {
   grid-template-columns: 1fr;
 }
@@ -674,7 +680,8 @@ dl {
 .work-card,
 .kfs-card,
 .assignment-card,
-.notice-card {
+.notice-card,
+.profile-card {
   border: 1px solid var(--line);
   border-radius: 22px;
   padding: 18px;
@@ -691,10 +698,21 @@ dl {
 .work-card p,
 .assignment-card p,
 .kfs-card p,
-.notice-card p {
+.notice-card p,
+.profile-card p {
   margin: 0;
   color: var(--muted);
   line-height: 1.6;
+}
+
+.profile-summary {
+  display: grid;
+  gap: 12px;
+}
+
+.profile-card strong {
+  display: block;
+  margin-bottom: 8px;
 }
 
 .notice-list {
@@ -757,6 +775,10 @@ dl {
   margin: 5px 0 0;
   color: var(--muted);
   font-size: 13px;
+}
+
+.timeline-item button {
+  margin-top: 10px;
 }
 
 .kfs-head {

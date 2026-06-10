@@ -67,7 +67,15 @@
       "status": "active",
       "onboardDate": "2022-03-12",
       "leaveBalance": 9,
-      "salaryBase": 28000
+      "salaryBase": 28000,
+      "phone": "13800000001",
+      "emergencyContact": "林家属 13800001001",
+      "address": "上海市徐汇区",
+      "skills": [
+        "统筹",
+        "摄影",
+        "现场调度"
+      ]
     },
     {
       "id": "EMP-0002",
@@ -77,7 +85,15 @@
       "status": "active",
       "onboardDate": "2023-07-01",
       "leaveBalance": 6,
-      "salaryBase": 22000
+      "salaryBase": 22000,
+      "phone": "13800000002",
+      "emergencyContact": "周家属 13800001002",
+      "address": "上海市长宁区",
+      "skills": [
+        "剪辑",
+        "调色",
+        "交付管理"
+      ]
     },
     {
       "id": "EMP-0003",
@@ -87,7 +103,15 @@
       "status": "active",
       "onboardDate": "2025-02-18",
       "leaveBalance": 4,
-      "salaryBase": 15000
+      "salaryBase": 15000,
+      "phone": "13800000003",
+      "emergencyContact": "陈家属 13800001003",
+      "address": "上海市静安区",
+      "skills": [
+        "摄影",
+        "灯光",
+        "素材管理"
+      ]
     },
     {
       "id": "EMP-0004",
@@ -97,7 +121,15 @@
       "status": "active",
       "onboardDate": "2024-04-08",
       "leaveBalance": 7,
-      "salaryBase": 16000
+      "salaryBase": 16000,
+      "phone": "13800000004",
+      "emergencyContact": "许家属 13800001004",
+      "address": "上海市普陀区",
+      "skills": [
+        "工资核算",
+        "报销",
+        "风险提醒"
+      ]
     }
   ],
   "departments": [
@@ -671,6 +703,13 @@
       "action": "login",
       "message": "用户登录系统",
       "createdAt": "2026-06-10T17:30:13.983Z"
+    },
+    {
+      "id": "LOG-1781118089981",
+      "userId": "user-001",
+      "action": "login",
+      "message": "用户登录系统",
+      "createdAt": "2026-06-10T19:01:29.981Z"
     }
   ]
 }

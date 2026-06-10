@@ -62,7 +62,11 @@ insertRows("employees", data.employees.map((item) => ({
   status: item.status,
   onboard_date: item.onboardDate,
   leave_balance: item.leaveBalance,
-  salary_base: item.salaryBase
+  salary_base: item.salaryBase,
+  phone: item.phone || "",
+  emergency_contact: item.emergencyContact || "",
+  address: item.address || "",
+  skills: json(item.skills || [])
 })));
 
 insertRows("handbook_articles", data.handbookArticles.map((item) => ({
