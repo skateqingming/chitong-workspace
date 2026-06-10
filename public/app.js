@@ -35,8 +35,12 @@ const employeeAssignmentList = document.querySelector("#employeeAssignmentList")
 const noticeList = document.querySelector("#noticeList");
 const handbookList = document.querySelector("#handbookList");
 const sopList = document.querySelector("#sopList");
+const faqList = document.querySelector("#faqList");
+const shootingReferenceList = document.querySelector("#shootingReferenceList");
+const standardProcessList = document.querySelector("#standardProcessList");
 const kfsList = document.querySelector("#kfsList");
 const assignmentList = document.querySelector("#assignmentList");
+const approvalList = document.querySelector("#approvalList");
 const employeeList = document.querySelector("#employeeList");
 const departmentList = document.querySelector("#departmentList");
 const positionList = document.querySelector("#positionList");
@@ -44,6 +48,7 @@ const leaveList = document.querySelector("#leaveList");
 const payrollList = document.querySelector("#payrollList");
 const auditList = document.querySelector("#auditList");
 const employeeForm = document.querySelector("#employeeForm");
+const approvalForm = document.querySelector("#approvalForm");
 const departmentForm = document.querySelector("#departmentForm");
 const positionForm = document.querySelector("#positionForm");
 const noticeForm = document.querySelector("#noticeForm");
@@ -71,7 +76,7 @@ const detailDialog = document.querySelector("#detailDialog");
 const dialogContent = document.querySelector("#dialogContent");
 const dialogCloseButton = document.querySelector("#dialogCloseButton");
 const nativeFetch = window.fetch.bind(window);
-const staticStorageKey = "chitong-static-data";
+const staticStorageKey = "chitong-static-data-v2";
 let staticDataPromise = null;
 
 window.fetch = async (resource, options = {}) => {
@@ -80,6 +85,10 @@ window.fetch = async (resource, options = {}) => {
 
   if (!pathname.includes("/api/")) {
     return nativeFetch(resource, options);
+  }
+
+  if (localStorage.getItem(staticStorageKey)) {
+    return handleStaticApi(pathname, options);
   }
 
   try {
@@ -167,6 +176,28 @@ employeeForm.addEventListener("submit", async (event) => {
   }
 
   employeeForm.reset();
+  await loadWorkspace();
+});
+
+approvalForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const formData = new FormData(approvalForm);
+  const payload = Object.fromEntries(formData.entries());
+  payload.owner = state.user?.name || "未知提交人";
+
+  const response = await fetch("/api/approvals", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const result = await response.json();
+    alert(result.error || "提交报销失败");
+    return;
+  }
+
+  approvalForm.reset();
   await loadWorkspace();
 });
 
@@ -425,7 +456,7 @@ async function loadWorkspace() {
   loginCard.classList.add("is-hidden");
   workspace.classList.remove("is-hidden");
   bottomNav.classList.remove("is-hidden");
-  welcomeTitle.textContent = state.user.name;
+  welcomeTitle.textContent = "赤瞳工作空间";
 
   renderMetrics();
   renderProfile();
@@ -437,7 +468,9 @@ async function loadWorkspace() {
   renderEmployeePortalControls();
   renderHandbookArticles();
   renderSopWorkflows();
+  renderKnowledgeExtras();
   renderKfsScores();
+  renderApprovals();
   renderOrgControls();
   renderEmployees();
   renderDepartments();
@@ -473,6 +506,21 @@ async function handleStaticApi(pathname, options = {}) {
 
   if (method === "GET" && endpoint === "bootstrap") {
     return jsonResponse(200, staticBootstrap(data));
+  }
+
+  if (method === "POST" && endpoint === "approvals") {
+    const approval = {
+      id: `APP-${String(data.approvals.length + 1).padStart(4, "0")}`,
+      title: String(body.title || "未命名报销"),
+      owner: String(body.owner || state.user?.name || "未知提交人"),
+      amount: String(body.amount || "-"),
+      status: "pending",
+      createdAt: new Date().toISOString().slice(0, 10)
+    };
+    data.approvals.unshift(approval);
+    appendStaticAuditLog(data, state.user?.id || "user-003", "create_approval", `新增报销申请：${approval.title}`);
+    saveStaticData(data);
+    return jsonResponse(201, { approval });
   }
 
   if (method === "POST" && endpoint === "profile") {
@@ -784,15 +832,16 @@ function setActiveModule(moduleName) {
 
 function renderRoleNavigation() {
   bottomNav.dataset.role = state.user.role;
-  welcomeTitle.textContent = state.user.name;
+  welcomeTitle.textContent = "赤瞳工作空间";
+  generatePayrollButton.classList.toggle("is-hidden", !canManage());
 }
 
 function getAllowedModules() {
   if (!state.user || state.user.role === "employee") {
-    return ["work", "knowledge"];
+    return ["work", "knowledge", "me"];
   }
 
-  return ["work", "knowledge", "payroll", "admin"];
+  return ["work", "knowledge", "admin", "me"];
 }
 
 function renderEmployeePortalControls() {
@@ -843,6 +892,38 @@ function renderSopWorkflows() {
       </article>
     `).join("")
     : `<p class="empty-state">没有找到相关 SOP。流程没丢，只是关键词可能太神秘了。</p>`;
+}
+
+function renderKnowledgeExtras() {
+  faqList.innerHTML = [
+    ["忘记素材命名怎么办？", "先按项目名_日期_机位_镜号补齐，再同步给项目负责人确认。"],
+    ["客户临时改需求怎么办？", "先记录变更点和影响时间，再由主管确认是否调整排期。"],
+    ["报销材料不齐怎么办？", "先补发票、付款凭证和审批截图，缺一项先不要提交。"]
+  ].map(([title, summary]) => renderSimpleKnowledgeCard("FAQ", title, summary)).join("");
+
+  shootingReferenceList.innerHTML = [
+    ["产品短视频镜头参考", "开场 3 秒给主体，细节镜头补质感，结尾保留品牌露出。"],
+    ["采访类布光参考", "主光 45 度，轮廓光压暗背景，收音先试录 10 秒。"],
+    ["素材交接参考", "当天素材当天备份，镜头备注和异常情况必须同步剪辑。"]
+  ].map(([title, summary]) => renderSimpleKnowledgeCard("Reference", title, summary)).join("");
+
+  standardProcessList.innerHTML = [
+    ["拍摄前检查", "通告、设备、电池、存储卡、道具、场地和人员到位后再开拍。"],
+    ["拍摄中记录", "每组镜头记录机位、条数、异常和是否可用，避免剪辑返工。"],
+    ["收工后交付", "素材编号、双备份、交接人确认，项目群同步完成状态。"]
+  ].map(([title, summary]) => renderSimpleKnowledgeCard("Standard", title, summary)).join("");
+}
+
+function renderSimpleKnowledgeCard(tag, title, summary) {
+  return `
+    <article class="knowledge-card">
+      <div>
+        <span class="tag">${escapeHtml(tag)}</span>
+        <h4>${escapeHtml(title)}</h4>
+        <p>${escapeHtml(summary)}</p>
+      </div>
+    </article>
+  `;
 }
 
 function getFilteredHandbookArticles() {
@@ -964,6 +1045,10 @@ function renderEmployeeSchedules() {
 }
 
 function renderEmployeeAssignments() {
+  if (!employeeAssignmentList) {
+    return;
+  }
+
   const assignments = getVisibleAssignments();
 
   employeeAssignmentList.innerHTML = assignments.length
@@ -998,8 +1083,28 @@ function renderNotices() {
     : `<p class="empty-state">暂时没有新的通知。</p>`;
 }
 
+function renderApprovals() {
+  const approvals = state.bootstrap.approvals.filter((item) => canManage() || item.owner === state.user.name);
+
+  approvalList.innerHTML = approvals.length
+    ? approvals.map((item) => `
+      <div class="row">
+        <div>
+          <strong>${escapeHtml(item.title)}</strong>
+          <p>${escapeHtml(item.owner)} · ${escapeHtml(item.amount)} · ${escapeHtml(item.createdAt)}</p>
+        </div>
+        <span class="status ${statusClass(item.status)}">${statusText(item.status)}</span>
+      </div>
+    `).join("")
+    : `<p class="empty-state">暂时没有报销申请。</p>`;
+}
+
 function renderKfsScores() {
-  kfsList.innerHTML = state.bootstrap.kfsScores
+  const scores = canManage()
+    ? state.bootstrap.kfsScores
+    : state.bootstrap.kfsScores.filter((item) => item.employeeName === state.user.name);
+
+  kfsList.innerHTML = scores
     .map((item) => `
       <article class="kfs-card">
         <div class="kfs-head">
@@ -1017,7 +1122,7 @@ function renderKfsScores() {
         <p>${escapeHtml(item.notes)}</p>
       </article>
     `)
-    .join("");
+    .join("") || `<p class="empty-state">暂时没有你的 KFS 绩效记录。</p>`;
 }
 
 function renderKfsBar(label, value) {
@@ -1225,6 +1330,29 @@ function renderLeaveRequests() {
 }
 
 function renderPayrollRuns() {
+  if (!canManage()) {
+    const payslips = getCurrentUserPayslips();
+    payrollList.innerHTML = payslips.length
+      ? payslips.map((item) => `
+        <div class="payroll-card">
+          <div class="payroll-head">
+            <div>
+              <strong>${escapeHtml(item.period)} 工资单</strong>
+              <p>${escapeHtml(item.employeeName)} · ${escapeHtml(item.department)}</p>
+            </div>
+            <span class="status">${payrollStatusText(item.status)}</span>
+          </div>
+          <dl>
+            <div><dt>应发</dt><dd>${formatCurrency(item.grossPay)}</dd></div>
+            <div><dt>扣减</dt><dd>${formatCurrency(item.deductions)}</dd></div>
+            <div><dt>实发</dt><dd>${formatCurrency(item.netPay)}</dd></div>
+          </dl>
+        </div>
+      `).join("")
+      : `<p class="empty-state">暂时没有你的工资核算记录。</p>`;
+    return;
+  }
+
   payrollList.innerHTML = state.bootstrap.payrollRuns
     .map((item) => `
       <div class="payroll-card">
@@ -1244,6 +1372,12 @@ function renderPayrollRuns() {
       </div>
     `)
     .join("");
+}
+
+function getCurrentUserPayslips() {
+  return state.bootstrap.payrollRuns
+    .flatMap((run) => (run.payslips || []).map((slip) => ({ ...slip, period: run.period, status: run.status })))
+    .filter((item) => item.employeeName === state.user.name);
 }
 
 function renderAuditLogs() {

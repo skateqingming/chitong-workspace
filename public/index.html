@@ -10,7 +10,7 @@
     <title>赤瞳工作空间</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icon.svg">
-    <link rel="stylesheet" href="styles.css?v=20260610-2">
+    <link rel="stylesheet" href="styles.css?v=20260610-3">
   </head>
   <body>
     <main class="shell">
@@ -59,52 +59,12 @@
             <article class="panel">
               <div class="panel-heading">
                 <div>
-                  <p class="eyebrow">Profile</p>
-                  <h3>个人资料</h3>
-                </div>
-                <span class="pill">可修改</span>
-              </div>
-              <form class="quick-form profile-form" id="profileForm">
-                <input name="phone" placeholder="手机号">
-                <input name="emergencyContact" placeholder="紧急联系人">
-                <input name="address" placeholder="现住地址">
-                <input name="skills" placeholder="技能标签，例如：摄影、灯光、剪辑">
-                <button type="submit">保存资料</button>
-              </form>
-              <div class="profile-summary" id="profileSummary"></div>
-            </article>
-
-            <article class="panel">
-              <div class="panel-heading">
-                <div>
                   <p class="eyebrow">Worksheets</p>
                   <h3>我的工作表</h3>
                 </div>
                 <span class="pill">只看相关</span>
               </div>
               <div class="work-card-list" id="workSheetList"></div>
-            </article>
-
-            <article class="panel">
-              <div class="panel-heading">
-                <div>
-                  <p class="eyebrow">Collaboration</p>
-                  <h3>项目协作</h3>
-                </div>
-                <span class="pill">同项目</span>
-              </div>
-              <div class="assignment-list" id="employeeAssignmentList"></div>
-            </article>
-
-            <article class="panel">
-              <div class="panel-heading">
-                <div>
-                  <p class="eyebrow">Notice</p>
-                  <h3>通知</h3>
-                </div>
-                <span class="pill">管理员发布</span>
-              </div>
-              <div class="notice-list" id="noticeList"></div>
             </article>
 
             <article class="panel">
@@ -124,7 +84,7 @@
         <section class="section-banner employee-banner">
           <div>
             <p class="eyebrow">Employee Portal</p>
-            <h2>知识库</h2>
+            <h2>知识</h2>
             <p>员工手册、SOP 工作流程、常用制度和操作步骤放在这里，先把“应该怎么做”讲清楚。</p>
           </div>
           <span class="pill">流程</span>
@@ -160,40 +120,125 @@
             </section>
             <div class="knowledge-list" id="sopList"></div>
           </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">FAQ</p>
+                <h3>疑难问题解答</h3>
+              </div>
+              <span class="pill">FAQ</span>
+            </div>
+            <div class="knowledge-list" id="faqList"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Reference</p>
+                <h3>拍摄参考</h3>
+              </div>
+              <span class="pill">Reference</span>
+            </div>
+            <div class="knowledge-list" id="shootingReferenceList"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Standard</p>
+                <h3>标准化流程</h3>
+              </div>
+              <span class="pill">Checklist</span>
+            </div>
+            <div class="knowledge-list" id="standardProcessList"></div>
+          </article>
         </section>
         </section>
 
-        <section class="module-panel" data-module-panel="payroll">
+        <section class="module-panel" data-module-panel="me">
           <section class="section-banner payroll-banner">
             <div>
-              <p class="eyebrow">KFS Payroll</p>
-              <h2>绩效结算</h2>
-              <p>KFS 模式默认按 K=关键成果、F=流程效率、S=服务协作 来计算绩效系数，方便财务和主管快速复核。</p>
+              <p class="eyebrow">Me</p>
+              <h2>我</h2>
+              <p>个人资料、报销申请、请假、工资核算和公司公告都放在这里。</p>
             </div>
-            <span class="pill">KFS 模式</span>
+            <span class="pill">个人中心</span>
           </section>
 
           <section class="grid employee-grid">
             <article class="panel">
               <div class="panel-heading">
                 <div>
-                  <p class="eyebrow">KFS Score</p>
-                  <h3>绩效评分</h3>
+                  <p class="eyebrow">Profile</p>
+                  <h3>个人资料</h3>
                 </div>
-                <span class="pill">K / F / S</span>
+                <span class="pill">可修改</span>
               </div>
-              <div class="kfs-list" id="kfsList"></div>
+              <form class="quick-form profile-form" id="profileForm">
+                <input name="phone" placeholder="手机号">
+                <input name="emergencyContact" placeholder="紧急联系人">
+                <input name="address" placeholder="现住地址">
+                <input name="skills" placeholder="技能标签，例如：摄影、灯光、剪辑">
+                <button type="submit">保存资料</button>
+              </form>
+              <div class="profile-summary" id="profileSummary"></div>
             </article>
 
             <article class="panel">
               <div class="panel-heading">
                 <div>
-                  <p class="eyebrow">Settlement</p>
-                  <h3>结算预览</h3>
+                  <p class="eyebrow">Expense</p>
+                  <h3>报销申请</h3>
+                </div>
+                <span class="pill">提交</span>
+              </div>
+              <form class="quick-form approval-form" id="approvalForm">
+                <input name="title" placeholder="报销事项，例如：拍摄交通费" required>
+                <input name="amount" placeholder="金额，例如：¥268" required>
+                <button type="submit">提交报销</button>
+              </form>
+              <div class="list" id="approvalList"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Leave</p>
+                  <h3>请假</h3>
+                </div>
+                <span class="pill">申请</span>
+              </div>
+              <form class="quick-form leave-form" id="leaveForm">
+                <select name="employeeId" id="leaveEmployeeSelect" required></select>
+                <input name="type" placeholder="类型，例如：年假" required>
+                <input name="days" type="number" min="0.5" step="0.5" placeholder="天数" required>
+                <input name="reason" placeholder="请假原因">
+                <button type="submit">提交请假</button>
+              </form>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Payroll</p>
+                  <h3>工资核算</h3>
                 </div>
                 <button class="ghost compact-button" id="generatePayrollButton" type="button">生成本月工资单</button>
               </div>
+              <div class="kfs-list" id="kfsList"></div>
               <div class="list" id="payrollList"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Notice</p>
+                  <h3>公告</h3>
+                </div>
+                <span class="pill">管理员发布</span>
+              </div>
+              <div class="notice-list" id="noticeList"></div>
             </article>
           </section>
         </section>
@@ -314,13 +359,6 @@
               </div>
               <span class="pill">Workflow</span>
             </div>
-            <form class="quick-form leave-form" id="leaveForm">
-              <select name="employeeId" id="leaveEmployeeSelect" required></select>
-              <input name="type" placeholder="类型，例如：年假" required>
-              <input name="days" type="number" min="0.5" step="0.5" placeholder="天数" required>
-              <input name="reason" placeholder="请假原因">
-              <button type="submit">提交</button>
-            </form>
             <div class="list" id="leaveList"></div>
           </article>
 
@@ -367,11 +405,11 @@
         <button class="bottom-nav-item" type="button" data-module-target="knowledge">
           <span>知识</span>
         </button>
-        <button class="bottom-nav-item" type="button" data-module-target="payroll">
-          <span>绩效</span>
-        </button>
         <button class="bottom-nav-item" type="button" data-module-target="admin">
           <span>管理</span>
+        </button>
+        <button class="bottom-nav-item" type="button" data-module-target="me">
+          <span>我</span>
         </button>
       </nav>
 
@@ -382,6 +420,6 @@
         </div>
       </dialog>
     </main>
-    <script src="app.js?v=20260610-2" type="module"></script>
+    <script src="app.js?v=20260610-3" type="module"></script>
   </body>
 </html>

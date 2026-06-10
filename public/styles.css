@@ -906,7 +906,7 @@ dl {
 }
 
 .bottom-nav[data-role="employee"] {
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .bottom-nav[data-role="admin"],
