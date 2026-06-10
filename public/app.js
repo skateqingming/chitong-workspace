@@ -74,7 +74,8 @@ window.fetch = async (resource, options = {}) => {
 
   try {
     const response = await nativeFetch(resource, options);
-    if (response.status !== 404) {
+    const contentType = response.headers.get("Content-Type") || "";
+    if (response.ok && contentType.includes("application/json")) {
       return response;
     }
   } catch {
