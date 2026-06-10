@@ -32,6 +32,29 @@ Neon PostgreSQL
 - `db/schema.sql`：PostgreSQL 正式表结构。
 - `scripts/export-seed-sql.mjs`：把 `data/app.json` 转成 `db/seed-demo.sql`。
 
+## 最简单上线：先只用 Render
+
+如果你的目标是“先让手机能打开在线系统”，可以暂时跳过 Neon。
+
+1. 登录 Render。
+2. 点击 `New`。
+3. 选择 `Blueprint`。
+4. 连接 GitHub 仓库：
+
+```text
+skateqingming/chitong-workspace
+```
+
+5. Render 会自动读取 `render.yaml`。
+6. 直接点击部署。
+7. 部署完成后，打开 Render 给你的 HTTPS 地址。
+
+这个方式成本最低、操作最少，但它使用的是演示数据文件。免费服务重启后，数据可能回到初始演示状态。
+
+## 正式数据上线：再做 Neon
+
+当你准备让多人长期使用，再执行下面的数据库步骤。
+
 ## 第一步：生成数据库演示数据
 
 ```bash
@@ -51,7 +74,7 @@ db/seed-demo.sql
 3. 打开 SQL Editor。
 4. 先执行 `db/schema.sql`。
 5. 再执行 `db/seed-demo.sql`。
-6. 复制 Neon 的 `DATABASE_URL`，后面填到 Render 环境变量。
+6. 复制 Neon 的 `DATABASE_URL`，后续服务端切换 PostgreSQL 数据层时使用。
 
 注意：当前服务端还没有真正切到 PostgreSQL 读写，`DATABASE_URL` 是为下一阶段预留。正式多人使用前，必须把 API 数据层从 JSON 文件切到数据库。
 
@@ -62,14 +85,13 @@ db/seed-demo.sql
 3. New → Blueprint。
 4. 选择这个仓库。
 5. Render 会读取 `render.yaml`。
-6. 环境变量里填：
+6. 如果只是预览版，不需要额外填写环境变量。Render 会使用 `render.yaml` 里的默认值：
 
 ```text
 NODE_ENV=production
 HOST=0.0.0.0
 DATA_FILE=/tmp/chitong-app.json
 MAX_BODY_BYTES=1048576
-DATABASE_URL=你的 Neon 连接串
 ```
 
 7. 部署完成后，Render 会给一个 HTTPS 地址，例如：

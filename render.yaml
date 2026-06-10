@@ -15,5 +15,3 @@ services:
         value: /tmp/chitong-app.json
       - key: MAX_BODY_BYTES
         value: "1048576"
-      - key: DATABASE_URL
-        sync: false
