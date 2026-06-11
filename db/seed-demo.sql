@@ -58,17 +58,17 @@ insert into sop_workflows (id, name, department_name, scenario, owner, sla, step
   ('SOP-0004', '设备报修 SOP', '全员', '电脑、网络、门禁或会议设备异常时使用。', '信息技术', '紧急问题 4 小时内响应', '["员工描述故障现象、影响范围和设备编号。","IT 判断远程处理或现场处理。","如需更换设备，登记临时设备和归还时间。","处理完成后员工确认问题关闭。"]'::jsonb)
 on conflict do nothing;
 
-insert into work_sheets (id, title, department_name, owner, participants, status, fields, updated_at) values
-  ('WS-0001', '今日拍摄任务表', '摄影部', '陈摄影', '["陈摄影","林制片"]'::jsonb, '进行中', '["客户/项目","场景","机位","素材编号","完成状态"]'::jsonb, '2026-06-10'),
-  ('WS-0002', '剪辑交付进度表', '剪辑部', '周剪辑', '["周剪辑","林制片"]'::jsonb, '待复核', '["项目","粗剪","精剪","调色","导出","客户反馈"]'::jsonb, '2026-06-10'),
-  ('WS-0003', '报销与付款跟踪表', '财务部', '许会计', '["许会计"]'::jsonb, '本周更新', '["申请人","费用类型","发票","审批","付款批次"]'::jsonb, '2026-06-09')
+insert into work_sheets (id, title, department_name, owner, participants, audience_departments, audience_titles, status, fields, updated_at) values
+  ('WS-0001', '今日拍摄任务表', '摄影部', '陈摄影', '["陈摄影","林制片"]'::jsonb, '["摄影部"]'::jsonb, '["摄影师","摄影总监"]'::jsonb, '进行中', '["客户/项目","场景","机位","素材编号","完成状态"]'::jsonb, '2026-06-10'),
+  ('WS-0002', '剪辑交付进度表', '剪辑部', '周剪辑', '["周剪辑","林制片"]'::jsonb, '["剪辑部"]'::jsonb, '["剪辑主管"]'::jsonb, '待复核', '["项目","粗剪","精剪","调色","导出","客户反馈"]'::jsonb, '2026-06-10'),
+  ('WS-0003', '报销与付款跟踪表', '财务部', '许会计', '["许会计"]'::jsonb, '["财务部"]'::jsonb, '["薪资会计"]'::jsonb, '本周更新', '["申请人","费用类型","发票","审批","付款批次"]'::jsonb, '2026-06-09')
 on conflict do nothing;
 
-insert into schedules (id, schedule_time, title, department_name, location, owner) values
-  ('SCH-0001', '09:30', '晨会与今日任务分配', '全员', '会议室 A', '林制片'),
-  ('SCH-0002', '10:30', '产品短视频拍摄', '摄影部', '1 号棚', '陈摄影'),
-  ('SCH-0003', '15:00', '客户片初剪复核', '剪辑部', '剪辑室 2', '周剪辑'),
-  ('SCH-0004', '17:30', '本日费用与工时确认', '财务部', '线上', '许会计')
+insert into schedules (id, schedule_date, day_label, schedule_time, title, department_name, location, owner) values
+  ('SCH-0001', '2026-06-11', '周四', '09:30', '晨会与今日任务分配', '全员', '会议室 A', '林制片'),
+  ('SCH-0002', '2026-06-11', '周四', '10:30', '产品短视频拍摄', '摄影部', '1 号棚', '陈摄影'),
+  ('SCH-0003', '2026-06-12', '周五', '15:00', '客户片初剪复核', '剪辑部', '剪辑室 2', '周剪辑'),
+  ('SCH-0004', '2026-06-13', '周六', '17:30', '本日费用与工时确认', '财务部', '线上', '许会计')
 on conflict do nothing;
 
 insert into notices (id, title, department_name, publisher, priority, published_at, content) values
@@ -121,7 +121,10 @@ insert into audit_logs (id, user_id, action, message, created_at) values
   ('LOG-1781108981326', 'user-001', 'login', '用户登录系统', '2026-06-10T16:29:41.326Z'),
   ('LOG-1781109067711', 'user-003', 'login', '用户登录系统', '2026-06-10T16:31:07.711Z'),
   ('LOG-1781112592048', 'user-001', 'login', '用户登录系统', '2026-06-10T17:29:52.048Z'),
-  ('LOG-1781112613983', 'user-001', 'login', '用户登录系统', '2026-06-10T17:30:13.983Z')
+  ('LOG-1781112613983', 'user-001', 'login', '用户登录系统', '2026-06-10T17:30:13.983Z'),
+  ('LOG-1781118089981', 'user-001', 'login', '用户登录系统', '2026-06-10T19:01:29.981Z'),
+  ('LOG-1781119762463', 'user-003', 'login', '用户登录系统', '2026-06-10T19:29:22.463Z'),
+  ('LOG-1781119795159', 'user-001', 'login', '用户登录系统', '2026-06-10T19:29:55.159Z')
 on conflict do nothing;
 
 insert into app_metrics (key, value) values

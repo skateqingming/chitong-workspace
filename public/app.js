@@ -24,6 +24,7 @@ const workspace = document.querySelector("#workspace");
 const bottomNav = document.querySelector("#bottomNav");
 const welcomeTitle = document.querySelector("#welcomeTitle");
 const metrics = document.querySelector("#metrics");
+const workTodayMeta = document.querySelector("#workTodayMeta");
 const modulePanels = document.querySelectorAll("[data-module-panel]");
 const moduleNavItems = document.querySelectorAll("[data-module-target]");
 const workSheetList = document.querySelector("#workSheetList");
@@ -31,6 +32,7 @@ const profileForm = document.querySelector("#profileForm");
 const profileSummary = document.querySelector("#profileSummary");
 const scheduleList = document.querySelector("#scheduleList");
 const employeeScheduleList = document.querySelector("#employeeScheduleList");
+const weeklyScheduleList = document.querySelector("#weeklyScheduleList");
 const employeeAssignmentList = document.querySelector("#employeeAssignmentList");
 const noticeList = document.querySelector("#noticeList");
 const handbookList = document.querySelector("#handbookList");
@@ -48,6 +50,7 @@ const leaveList = document.querySelector("#leaveList");
 const payrollList = document.querySelector("#payrollList");
 const auditList = document.querySelector("#auditList");
 const employeeForm = document.querySelector("#employeeForm");
+const workSheetForm = document.querySelector("#workSheetForm");
 const approvalForm = document.querySelector("#approvalForm");
 const departmentForm = document.querySelector("#departmentForm");
 const positionForm = document.querySelector("#positionForm");
@@ -56,6 +59,8 @@ const scheduleForm = document.querySelector("#scheduleForm");
 const employeeDepartmentSelect = document.querySelector("#employeeDepartmentSelect");
 const employeePositionSelect = document.querySelector("#employeePositionSelect");
 const positionDepartmentSelect = document.querySelector("#positionDepartmentSelect");
+const workSheetDepartmentSelect = document.querySelector("#workSheetDepartmentSelect");
+const workSheetPositionSelect = document.querySelector("#workSheetPositionSelect");
 const noticeDepartmentSelect = document.querySelector("#noticeDepartmentSelect");
 const scheduleDepartmentSelect = document.querySelector("#scheduleDepartmentSelect");
 const scheduleIdInput = document.querySelector("#scheduleIdInput");
@@ -76,7 +81,7 @@ const detailDialog = document.querySelector("#detailDialog");
 const dialogContent = document.querySelector("#dialogContent");
 const dialogCloseButton = document.querySelector("#dialogCloseButton");
 const nativeFetch = window.fetch.bind(window);
-const staticStorageKey = "chitong-static-data-v2";
+const staticStorageKey = "chitong-static-data-v3";
 let staticDataPromise = null;
 
 window.fetch = async (resource, options = {}) => {
@@ -131,7 +136,7 @@ loginForm.addEventListener("submit", async (event) => {
   await loadWorkspace();
 });
 
-logoutButton.addEventListener("click", () => {
+logoutButton?.addEventListener("click", () => {
   state.user = null;
   state.activeModule = "work";
   workspace.classList.add("is-hidden");
@@ -176,6 +181,26 @@ employeeForm.addEventListener("submit", async (event) => {
   }
 
   employeeForm.reset();
+  await loadWorkspace();
+});
+
+workSheetForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const formData = new FormData(workSheetForm);
+
+  const response = await fetch("/api/work-sheets", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(Object.fromEntries(formData.entries()))
+  });
+
+  if (!response.ok) {
+    const result = await response.json();
+    alert(result.error || "发布工作表失败");
+    return;
+  }
+
+  workSheetForm.reset();
   await loadWorkspace();
 });
 
@@ -456,14 +481,18 @@ async function loadWorkspace() {
   loginCard.classList.add("is-hidden");
   workspace.classList.remove("is-hidden");
   bottomNav.classList.remove("is-hidden");
-  welcomeTitle.textContent = "赤瞳工作空间";
+  if (welcomeTitle) {
+    welcomeTitle.textContent = "赤瞳工作空间";
+  }
 
   renderMetrics();
   renderProfile();
+  renderTodayWorkMeta();
   renderWorkSheets();
   renderEmployeeAssignments();
   renderNotices();
   renderEmployeeSchedules();
+  renderWeeklySchedules();
   renderSchedules();
   renderEmployeePortalControls();
   renderHandbookArticles();
@@ -543,6 +572,29 @@ async function handleStaticApi(pathname, options = {}) {
     return jsonResponse(200, { employee });
   }
 
+  if (method === "POST" && endpoint === "work-sheets") {
+    const fields = String(body.fields || "")
+      .split(/[,，、]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+    const workSheet = {
+      id: `WS-${String(data.workSheets.length + 1).padStart(4, "0")}`,
+      title: String(body.title || "未命名工作表"),
+      department: String(body.department || "全员"),
+      owner: state.user?.name || "管理员",
+      participants: [],
+      audienceDepartments: [String(body.department || "全员")],
+      audienceTitles: [String(body.titleTarget || "全员")],
+      status: "管理员发布",
+      fields: fields.length ? fields : ["项目", "负责人", "状态"],
+      updatedAt: new Date().toISOString().slice(0, 10)
+    };
+    data.workSheets.unshift(workSheet);
+    appendStaticAuditLog(data, state.user?.id || "user-001", "create_work_sheet", `发布工作表：${workSheet.title}`);
+    saveStaticData(data);
+    return jsonResponse(201, { workSheet });
+  }
+
   if (method === "POST" && endpoint === "employees") {
     const employee = {
       id: `EMP-${String(data.employees.length + 1).padStart(4, "0")}`,
@@ -610,6 +662,8 @@ async function handleStaticApi(pathname, options = {}) {
     const scheduleId = String(body.scheduleId || "");
     const schedule = {
       id: scheduleId || `SCH-${String(data.schedules.length + 1).padStart(4, "0")}`,
+      date: String(body.date || getISODate(new Date())),
+      day: formatShortWeekday(String(body.date || getISODate(new Date()))),
       time: String(body.time || "09:30"),
       title: String(body.title || "未命名日程"),
       department: String(body.department || "全员"),
@@ -832,7 +886,9 @@ function setActiveModule(moduleName) {
 
 function renderRoleNavigation() {
   bottomNav.dataset.role = state.user.role;
-  welcomeTitle.textContent = "赤瞳工作空间";
+  if (welcomeTitle) {
+    welcomeTitle.textContent = "赤瞳工作空间";
+  }
   generatePayrollButton.classList.toggle("is-hidden", !canManage());
 }
 
@@ -989,6 +1045,10 @@ function renderWorkSheets() {
     : `<p class="empty-state">暂时没有和你相关的工作表。</p>`;
 }
 
+function renderTodayWorkMeta() {
+  workTodayMeta.textContent = `${formatDisplayDate(new Date())} · ${state.user.name}`;
+}
+
 function renderProfile() {
   const employee = getCurrentEmployee();
   if (!employee) {
@@ -1029,7 +1089,7 @@ function renderSchedules() {
 }
 
 function renderEmployeeSchedules() {
-  const schedules = getVisibleSchedules();
+  const schedules = getTodaySchedules();
 
   employeeScheduleList.innerHTML = schedules.length
     ? schedules.map((item) => `
@@ -1042,6 +1102,22 @@ function renderEmployeeSchedules() {
       </article>
     `).join("")
     : `<p class="empty-state">今天暂时没有和你相关的日程。</p>`;
+}
+
+function renderWeeklySchedules() {
+  const schedules = getVisibleSchedules();
+
+  weeklyScheduleList.innerHTML = schedules.length
+    ? schedules.map((item) => `
+      <article class="timeline-item">
+        <time>${escapeHtml(item.day || "本周")}</time>
+        <div>
+          <strong>${escapeHtml(item.title)}</strong>
+          <p>${escapeHtml(item.time)} · ${escapeHtml(item.department)} · ${escapeHtml(item.location)} · ${escapeHtml(item.owner)}</p>
+        </div>
+      </article>
+    `).join("")
+    : `<p class="empty-state">本周暂时没有安排。</p>`;
 }
 
 function renderEmployeeAssignments() {
@@ -1156,7 +1232,16 @@ function getVisibleWorkSheets() {
     return state.bootstrap.workSheets;
   }
 
-  return state.bootstrap.workSheets.filter((item) => isCurrentUserRelated(item));
+  const employee = getCurrentEmployee();
+
+  return state.bootstrap.workSheets.filter((item) => {
+    const departments = item.audienceDepartments || [item.department];
+    const titles = item.audienceTitles || [];
+    const matchesDepartment = departments.includes("全员") || departments.includes(state.user.department);
+    const matchesTitle = !titles.length || titles.includes("全员") || titles.includes(employee?.title);
+
+    return isCurrentUserRelated(item) || (matchesDepartment && matchesTitle);
+  });
 }
 
 function getVisibleAssignments() {
@@ -1185,6 +1270,10 @@ function getVisibleSchedules() {
   });
 }
 
+function getTodaySchedules() {
+  return getVisibleSchedules().filter((item) => !item.date || item.date === getISODate(new Date()));
+}
+
 function isCurrentUserRelated(item) {
   const participants = item.participants || [];
   return item.owner === state.user.name
@@ -1200,6 +1289,24 @@ function canManage() {
 function getCurrentEmployee() {
   return state.bootstrap.employees.find((employee) => employee.name === state.user?.name)
     || state.bootstrap.employees.find((employee) => employee.department === state.user?.department);
+}
+
+function getISODate(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function formatDisplayDate(date) {
+  return date.toLocaleDateString("zh-CN", {
+    month: "long",
+    day: "numeric",
+    weekday: "long"
+  });
+}
+
+function formatShortWeekday(dateString) {
+  return new Date(`${dateString}T00:00:00`).toLocaleDateString("zh-CN", {
+    weekday: "short"
+  });
 }
 
 function renderEmployees() {
@@ -1240,16 +1347,21 @@ function renderOrgControls() {
     .join("");
 
   employeeDepartmentSelect.innerHTML = departmentOptions;
+  workSheetDepartmentSelect.innerHTML = communicationDepartmentOptions;
   positionDepartmentSelect.innerHTML = departmentOptions;
   noticeDepartmentSelect.innerHTML = communicationDepartmentOptions;
   scheduleDepartmentSelect.innerHTML = communicationDepartmentOptions;
   employeePositionSelect.innerHTML = positionOptions;
+  workSheetPositionSelect.innerHTML = `<option value="全员">全员</option>${positionOptions}`;
   departmentFilter.innerHTML = `<option value="all">全部部门</option>${departmentOptions}`;
   positionFilter.innerHTML = `<option value="all">全部岗位</option>${positions
     .map((item) => `<option value="${escapeHtml(item.title)}">${escapeHtml(item.title)}</option>`)
     .join("")}`;
   departmentFilter.value = state.employeeFilters.department;
   positionFilter.value = state.employeeFilters.position;
+  if (!scheduleForm.elements.date.value) {
+    scheduleForm.elements.date.value = getISODate(new Date());
+  }
 }
 
 function startScheduleEdit(scheduleId) {
@@ -1259,6 +1371,7 @@ function startScheduleEdit(scheduleId) {
   }
 
   scheduleForm.elements.time.value = schedule.time || "";
+  scheduleForm.elements.date.value = schedule.date || getISODate(new Date());
   scheduleForm.elements.title.value = schedule.title || "";
   scheduleForm.elements.department.value = schedule.department || "全员";
   scheduleForm.elements.location.value = schedule.location || "";
@@ -1269,6 +1382,7 @@ function startScheduleEdit(scheduleId) {
 
 function resetScheduleForm() {
   scheduleForm.reset();
+  scheduleForm.elements.date.value = getISODate(new Date());
   scheduleIdInput.value = "";
   scheduleSubmitButton.textContent = "保存日程";
 }

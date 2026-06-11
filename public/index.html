@@ -10,7 +10,7 @@
     <title>赤瞳工作空间</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icon.svg">
-    <link rel="stylesheet" href="styles.css?v=20260610-3">
+    <link rel="stylesheet" href="styles.css?v=20260610-4">
   </head>
   <body>
     <main class="shell">
@@ -37,19 +37,12 @@
       </section>
 
       <section class="workspace is-hidden" id="workspace">
-        <header class="topbar">
-          <div>
-            <p class="eyebrow">Workspace</p>
-            <h2 id="welcomeTitle">内部工作台</h2>
-          </div>
-          <button class="ghost" id="logoutButton">退出</button>
-        </header>
-
         <section class="module-panel is-active" data-module-panel="work">
           <section class="section-banner employee-banner">
             <div>
               <p class="eyebrow">Employee Workbench</p>
-              <h2>工作</h2>
+              <h2>今日工作</h2>
+              <p class="today-meta" id="workTodayMeta"></p>
               <p>只显示和本人工作、项目协作、管理员通知相关的内容，打开就知道今天该先处理什么。</p>
             </div>
             <span class="pill">今日</span>
@@ -76,6 +69,17 @@
                 <span class="pill">今日安排</span>
               </div>
               <div class="timeline-list" id="employeeScheduleList"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Week</p>
+                  <h3>本周工作安排全览</h3>
+                </div>
+                <span class="pill">一周</span>
+              </div>
+              <div class="timeline-list" id="weeklyScheduleList"></div>
             </article>
           </section>
         </section>
@@ -259,6 +263,23 @@
           <article class="panel">
             <div class="panel-heading">
               <div>
+                <p class="eyebrow">Worksheet Publish</p>
+                <h3>发布工作表</h3>
+              </div>
+              <span class="pill">按部门岗位</span>
+            </div>
+            <form class="quick-form worksheet-form" id="workSheetForm">
+              <input name="title" placeholder="工作表标题" required>
+              <select name="department" id="workSheetDepartmentSelect" required></select>
+              <select name="titleTarget" id="workSheetPositionSelect" required></select>
+              <input name="fields" placeholder="表格字段，用顿号分隔，例如：项目、机位、状态" required>
+              <button type="submit">发布</button>
+            </form>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
                 <p class="eyebrow">Announcement</p>
                 <h3>发布公告</h3>
               </div>
@@ -282,6 +303,7 @@
               <span class="pill">新增/修改</span>
             </div>
             <form class="quick-form schedule-form" id="scheduleForm">
+              <input name="date" type="date" required>
               <input name="time" placeholder="时间，例如：10:30" required>
               <input name="title" placeholder="日程标题" required>
               <select name="department" id="scheduleDepartmentSelect" required></select>
@@ -420,6 +442,6 @@
         </div>
       </dialog>
     </main>
-    <script src="app.js?v=20260610-3" type="module"></script>
+    <script src="app.js?v=20260610-4" type="module"></script>
   </body>
 </html>

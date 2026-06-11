@@ -96,6 +96,8 @@ create table if not exists work_sheets (
   department_name text not null,
   owner text not null,
   participants jsonb not null default '[]'::jsonb,
+  audience_departments jsonb not null default '[]'::jsonb,
+  audience_titles jsonb not null default '[]'::jsonb,
   status text not null,
   fields jsonb not null default '[]'::jsonb,
   updated_at date not null
@@ -103,6 +105,8 @@ create table if not exists work_sheets (
 
 create table if not exists schedules (
   id text primary key,
+  schedule_date date,
+  day_label text not null default '',
   schedule_time text not null,
   title text not null,
   department_name text not null,

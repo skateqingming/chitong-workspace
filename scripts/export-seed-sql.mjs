@@ -95,6 +95,8 @@ insertRows("work_sheets", data.workSheets.map((item) => ({
   department_name: item.department,
   owner: item.owner,
   participants: json(item.participants || []),
+  audience_departments: json(item.audienceDepartments || [item.department]),
+  audience_titles: json(item.audienceTitles || []),
   status: item.status,
   fields: json(item.fields || []),
   updated_at: item.updatedAt
@@ -102,6 +104,8 @@ insertRows("work_sheets", data.workSheets.map((item) => ({
 
 insertRows("schedules", data.schedules.map((item) => ({
   id: item.id,
+  schedule_date: item.date || null,
+  day_label: item.day || "",
   schedule_time: item.time,
   title: item.title,
   department_name: item.department,

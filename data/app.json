@@ -315,6 +315,13 @@
         "陈摄影",
         "林制片"
       ],
+      "audienceDepartments": [
+        "摄影部"
+      ],
+      "audienceTitles": [
+        "摄影师",
+        "摄影总监"
+      ],
       "status": "进行中",
       "fields": [
         "客户/项目",
@@ -333,6 +340,12 @@
       "participants": [
         "周剪辑",
         "林制片"
+      ],
+      "audienceDepartments": [
+        "剪辑部"
+      ],
+      "audienceTitles": [
+        "剪辑主管"
       ],
       "status": "待复核",
       "fields": [
@@ -353,6 +366,12 @@
       "participants": [
         "许会计"
       ],
+      "audienceDepartments": [
+        "财务部"
+      ],
+      "audienceTitles": [
+        "薪资会计"
+      ],
       "status": "本周更新",
       "fields": [
         "申请人",
@@ -367,6 +386,8 @@
   "schedules": [
     {
       "id": "SCH-0001",
+      "date": "2026-06-11",
+      "day": "周四",
       "time": "09:30",
       "title": "晨会与今日任务分配",
       "department": "全员",
@@ -375,6 +396,8 @@
     },
     {
       "id": "SCH-0002",
+      "date": "2026-06-11",
+      "day": "周四",
       "time": "10:30",
       "title": "产品短视频拍摄",
       "department": "摄影部",
@@ -383,6 +406,8 @@
     },
     {
       "id": "SCH-0003",
+      "date": "2026-06-12",
+      "day": "周五",
       "time": "15:00",
       "title": "客户片初剪复核",
       "department": "剪辑部",
@@ -391,6 +416,8 @@
     },
     {
       "id": "SCH-0004",
+      "date": "2026-06-13",
+      "day": "周六",
       "time": "17:30",
       "title": "本日费用与工时确认",
       "department": "财务部",
@@ -724,6 +751,13 @@
       "action": "login",
       "message": "用户登录系统",
       "createdAt": "2026-06-10T19:29:55.159Z"
+    },
+    {
+      "id": "LOG-1781141511921",
+      "userId": "user-001",
+      "action": "login",
+      "message": "用户登录系统",
+      "createdAt": "2026-06-11T01:31:51.921Z"
     }
   ]
 }
