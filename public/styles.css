@@ -195,6 +195,19 @@ button:disabled {
   box-shadow: 0 18px 46px rgba(46, 38, 22, 0.12);
 }
 
+.section-banner > div,
+.panel-heading > div,
+.work-card > div,
+.assignment-card > div,
+.notice-card > div,
+.knowledge-card > div,
+.timeline-item > div,
+.row > div,
+.payroll-head > div,
+.kfs-head > div {
+  min-width: 0;
+}
+
 .section-banner h2,
 .section-banner p {
   margin: 0;
@@ -228,6 +241,7 @@ button:disabled {
   line-height: 0.98;
   letter-spacing: -0.07em;
   text-shadow: var(--title-shadow);
+  overflow-wrap: anywhere;
 }
 
 .today-meta {
@@ -244,6 +258,7 @@ button:disabled {
 
 .section-banner .pill {
   position: relative;
+  flex: 0 0 auto;
   z-index: 1;
   white-space: nowrap;
   color: #fffaf0;
@@ -336,7 +351,7 @@ button:disabled {
 .panel {
   position: relative;
   overflow: hidden;
-  padding: 18px;
+  padding: 18px 18px 18px 22px;
   border-radius: 26px;
   box-shadow: 0 14px 42px rgba(46, 38, 22, 0.1);
 }
@@ -358,6 +373,16 @@ button:disabled {
   padding-left: 4px;
 }
 
+.panel-heading > div {
+  flex: 1 1 auto;
+}
+
+.panel-heading > .pill,
+.panel-heading > .ghost,
+.panel-heading > button {
+  flex: 0 0 auto;
+}
+
 .panel-heading .eyebrow {
   display: block;
   margin-bottom: 5px;
@@ -370,15 +395,23 @@ button:disabled {
   font-size: 23px;
   line-height: 1.05;
   letter-spacing: -0.055em;
+  overflow-wrap: anywhere;
 }
 
 .pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
   border-radius: 999px;
   padding: 7px 11px;
   color: var(--moss);
   background: rgba(75, 111, 68, 0.12);
   font-size: 12px;
   font-weight: 800;
+  line-height: 1.2;
+  white-space: normal;
+  text-align: center;
 }
 
 .quick-form {
@@ -435,6 +468,7 @@ button:disabled {
 .row strong {
   font-size: 16px;
   letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
 }
 
 .row p {
@@ -444,12 +478,20 @@ button:disabled {
 }
 
 .status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
   border-radius: 999px;
   padding: 6px 10px;
   background: rgba(215, 168, 63, 0.18);
   color: #805600;
   font-size: 12px;
   font-weight: 800;
+  line-height: 1.2;
+  white-space: normal;
+  text-align: center;
 }
 
 .status.is-approved {
@@ -730,6 +772,16 @@ dl {
   box-shadow: 0 10px 30px rgba(46, 38, 22, 0.07);
 }
 
+.work-card *,
+.kfs-card *,
+.assignment-card *,
+.notice-card *,
+.profile-card *,
+.knowledge-card *,
+.timeline-item * {
+  min-width: 0;
+}
+
 .work-card h4,
 .assignment-card h4,
 .notice-card h4 {
@@ -737,6 +789,7 @@ dl {
   font-size: 21px;
   line-height: 1.18;
   letter-spacing: -0.045em;
+  overflow-wrap: anywhere;
 }
 
 .work-card p,
@@ -791,12 +844,14 @@ dl {
 }
 
 .mini-grid span {
+  min-width: 0;
   border-radius: 999px;
   padding: 6px 10px;
   color: var(--muted);
   background: rgba(24, 32, 25, 0.06);
   font-size: 12px;
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .timeline-item {
@@ -826,12 +881,14 @@ dl {
   font-size: 18px;
   line-height: 1.25;
   letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
 }
 
 .timeline-item p {
   margin: 5px 0 0;
   color: var(--muted);
   font-size: 13px;
+  overflow-wrap: anywhere;
 }
 
 .timeline-item button {
@@ -897,6 +954,7 @@ dl {
   font-size: 21px;
   line-height: 1.18;
   letter-spacing: -0.045em;
+  overflow-wrap: anywhere;
 }
 
 .knowledge-card p {
@@ -913,12 +971,17 @@ dl {
 
 .tag {
   display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
   border-radius: 999px;
   padding: 6px 10px;
   color: var(--moss);
   background: rgba(75, 111, 68, 0.12);
   font-size: 12px;
   font-weight: 900;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+  white-space: normal;
 }
 
 .policy-summary {
@@ -1051,7 +1114,7 @@ dd {
   .shell {
     width: min(100%, 520px);
     height: 100dvh;
-    padding: max(12px, env(safe-area-inset-top)) 10px calc(86px + env(safe-area-inset-bottom));
+    padding: max(12px, env(safe-area-inset-top)) 10px calc(112px + env(safe-area-inset-bottom));
   }
 
   .hero {
@@ -1068,6 +1131,10 @@ dd {
     border-radius: 24px;
   }
 
+  .panel {
+    padding: 16px 15px 16px 20px;
+  }
+
   .section-banner,
   .knowledge-card,
   .assignment-card,
@@ -1077,8 +1144,51 @@ dd {
   }
 
   .section-banner {
-    flex-direction: row;
+    flex-direction: column;
+    gap: 12px;
     padding: 18px;
+  }
+
+  .section-banner .pill {
+    align-self: flex-start;
+  }
+
+  .section-banner p:not(.eyebrow) {
+    max-width: none;
+  }
+
+  .panel-heading {
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .panel-heading > .pill,
+  .panel-heading > .ghost,
+  .panel-heading > button {
+    align-self: flex-start;
+    max-width: 100%;
+  }
+
+  .assignment-card,
+  .knowledge-card,
+  .payroll-head,
+  .kfs-head {
+    grid-template-columns: 1fr;
+  }
+
+  .assignment-card .status {
+    width: fit-content;
+  }
+
+  .timeline-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .timeline-item time {
+    width: fit-content;
+    min-height: 0;
+    padding: 9px 12px;
   }
 
   .metrics {
@@ -1086,8 +1196,13 @@ dd {
     gap: 10px;
   }
 
+  .metric-card {
+    min-width: 0;
+  }
+
   .metric-card strong {
-    font-size: 24px;
+    font-size: clamp(20px, 6vw, 24px);
+    overflow-wrap: anywhere;
   }
 
   .row,
@@ -1097,6 +1212,12 @@ dd {
 
   .row {
     align-items: start;
+  }
+
+  .row,
+  .payroll-head,
+  .kfs-head {
+    gap: 10px;
   }
 
   .actions {
@@ -1130,10 +1251,33 @@ dd {
   }
 
   .bottom-nav-item {
-    padding: 14px 4px;
+    min-width: 0;
+    padding: 12px 4px;
   }
 
   .bottom-nav-item span {
-    font-size: 14px;
+    font-size: clamp(13px, 3.7vw, 14px);
+    line-height: 1.15;
+  }
+}
+
+@media (max-width: 380px) {
+  .section-banner h2 {
+    font-size: 30px;
+  }
+
+  .panel-heading h3 {
+    font-size: 21px;
+  }
+
+  .work-card h4,
+  .assignment-card h4,
+  .notice-card h4,
+  .knowledge-card h4 {
+    font-size: 19px;
+  }
+
+  .timeline-item strong {
+    font-size: 17px;
   }
 }
