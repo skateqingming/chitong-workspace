@@ -1114,7 +1114,7 @@ dd {
   .shell {
     width: min(100%, 520px);
     height: 100dvh;
-    padding: max(12px, env(safe-area-inset-top)) 10px calc(112px + env(safe-area-inset-bottom));
+    padding: max(12px, env(safe-area-inset-top)) 10px calc(96px + env(safe-area-inset-bottom));
   }
 
   .hero {
@@ -1135,45 +1135,103 @@ dd {
     padding: 16px 15px 16px 20px;
   }
 
-  .section-banner,
-  .knowledge-card,
-  .assignment-card,
-  .timeline-item {
-    grid-template-columns: 1fr;
-    align-items: start;
-  }
-
   .section-banner {
-    flex-direction: column;
-    gap: 12px;
-    padding: 18px;
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    border-radius: 24px;
+    padding: 16px;
   }
 
+  .section-banner .eyebrow,
+  .section-banner p:not(.eyebrow):not(.today-meta),
   .section-banner .pill {
-    align-self: flex-start;
+    display: none;
   }
 
-  .section-banner p:not(.eyebrow) {
-    max-width: none;
+  .section-banner h2 {
+    font-size: clamp(30px, 8vw, 36px);
+    letter-spacing: -0.06em;
+  }
+
+  .today-meta {
+    margin-top: 8px;
+    padding: 6px 10px;
+    font-size: 12px;
   }
 
   .panel-heading {
-    flex-direction: column;
-    gap: 9px;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .panel-heading .eyebrow {
+    display: none;
+  }
+
+  .panel-heading h3 {
+    font-size: 20px;
+    letter-spacing: -0.04em;
   }
 
   .panel-heading > .pill,
   .panel-heading > .ghost,
   .panel-heading > button {
-    align-self: flex-start;
+    align-self: center;
+    flex: 0 0 auto;
     max-width: 100%;
   }
 
+  .pill,
+  .status,
+  .tag {
+    padding: 5px 9px;
+    font-size: 11px;
+  }
+
+  .work-card,
+  .kfs-card,
   .assignment-card,
-  .knowledge-card,
-  .payroll-head,
-  .kfs-head {
+  .notice-card,
+  .profile-card,
+  .knowledge-card {
+    border-radius: 20px;
+    padding: 14px;
+    box-shadow: 0 8px 24px rgba(46, 38, 22, 0.06);
+  }
+
+  .work-card h4,
+  .assignment-card h4,
+  .notice-card h4,
+  .knowledge-card h4 {
+    margin: 8px 0 5px;
+    font-size: 18px;
+    line-height: 1.22;
+    letter-spacing: -0.035em;
+  }
+
+  .work-card p,
+  .assignment-card p,
+  .kfs-card p,
+  .notice-card p,
+  .profile-card p,
+  .knowledge-card p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .knowledge-card {
     grid-template-columns: 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .assignment-card {
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
   }
 
   .assignment-card .status {
@@ -1181,14 +1239,23 @@ dd {
   }
 
   .timeline-item {
-    grid-template-columns: 1fr;
-    gap: 10px;
+    grid-template-columns: 68px 1fr;
+    gap: 12px;
+    border-radius: 20px;
+    padding: 13px;
+    align-items: center;
   }
 
   .timeline-item time {
-    width: fit-content;
-    min-height: 0;
-    padding: 9px 12px;
+    width: 100%;
+    min-height: 48px;
+    padding: 8px;
+    border-radius: 15px;
+    font-size: 15px;
+  }
+
+  .timeline-item strong {
+    font-size: 17px;
   }
 
   .metrics {
@@ -1207,11 +1274,12 @@ dd {
 
   .row,
   .payroll-head {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr auto;
   }
 
   .row {
-    align-items: start;
+    align-items: center;
+    padding: 13px;
   }
 
   .row,
@@ -1221,7 +1289,7 @@ dd {
   }
 
   .actions {
-    justify-content: start;
+    justify-content: end;
   }
 
   button,
@@ -1247,12 +1315,13 @@ dd {
     bottom: max(10px, env(safe-area-inset-bottom));
     left: 10px;
     width: auto;
-    border-radius: 24px;
+    border-radius: 22px;
+    padding: 7px;
   }
 
   .bottom-nav-item {
     min-width: 0;
-    padding: 12px 4px;
+    padding: 11px 4px;
   }
 
   .bottom-nav-item span {
@@ -1279,5 +1348,25 @@ dd {
 
   .timeline-item strong {
     font-size: 17px;
+  }
+
+  .section-banner,
+  .panel-heading,
+  .row,
+  .assignment-card,
+  .timeline-item {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .timeline-item time {
+    width: fit-content;
+    min-height: 0;
+    padding: 8px 11px;
+  }
+
+  .actions {
+    justify-content: start;
   }
 }
