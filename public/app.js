@@ -84,6 +84,8 @@ const nativeFetch = window.fetch.bind(window);
 const staticStorageKey = "chitong-static-data-v3";
 let staticDataPromise = null;
 
+const apiPath = (endpoint) => `api/${endpoint}`;
+
 window.fetch = async (resource, options = {}) => {
   const requestUrl = typeof resource === "string" ? resource : resource.url;
   const pathname = new URL(requestUrl, window.location.href).pathname;
@@ -120,20 +122,24 @@ loginForm.addEventListener("submit", async (event) => {
   const formData = new FormData(loginForm);
   const payload = Object.fromEntries(formData.entries());
 
-  const response = await fetch("/api/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
+  try {
+    const response = await fetch(apiPath("login"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
 
-  const result = await response.json();
-  if (!response.ok) {
-    alert(result.error || "登录失败");
-    return;
+    const result = await response.json();
+    if (!response.ok) {
+      alert(result.error || "登录失败");
+      return;
+    }
+
+    state.user = result.user;
+    await loadWorkspace();
+  } catch {
+    alert("登录组件没有加载成功，请刷新页面后再试。如果是在手机主屏幕打开，请删除旧图标后重新添加。");
   }
-
-  state.user = result.user;
-  await loadWorkspace();
 });
 
 logoutButton?.addEventListener("click", () => {
@@ -149,7 +155,7 @@ profileForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(profileForm);
 
-  const response = await fetch("/api/profile", {
+  const response = await fetch(apiPath("profile"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -168,7 +174,7 @@ employeeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(employeeForm);
 
-  const response = await fetch("/api/employees", {
+  const response = await fetch(apiPath("employees"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -188,7 +194,7 @@ workSheetForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(workSheetForm);
 
-  const response = await fetch("/api/work-sheets", {
+  const response = await fetch(apiPath("work-sheets"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -210,7 +216,7 @@ approvalForm.addEventListener("submit", async (event) => {
   const payload = Object.fromEntries(formData.entries());
   payload.owner = state.user?.name || "未知提交人";
 
-  const response = await fetch("/api/approvals", {
+  const response = await fetch(apiPath("approvals"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -230,7 +236,7 @@ departmentForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(departmentForm);
 
-  const response = await fetch("/api/departments", {
+  const response = await fetch(apiPath("departments"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -250,7 +256,7 @@ positionForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(positionForm);
 
-  const response = await fetch("/api/positions", {
+  const response = await fetch(apiPath("positions"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -270,7 +276,7 @@ noticeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(noticeForm);
 
-  const response = await fetch("/api/notices", {
+  const response = await fetch(apiPath("notices"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -290,7 +296,7 @@ scheduleForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(scheduleForm);
 
-  const response = await fetch("/api/schedules", {
+  const response = await fetch(apiPath("schedules"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -347,7 +353,7 @@ leaveForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(leaveForm);
 
-  const response = await fetch("/api/leave-requests", {
+  const response = await fetch(apiPath("leave-requests"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -396,7 +402,7 @@ leaveList.addEventListener("click", async (event) => {
     return;
   }
 
-  const response = await fetch("/api/leave-requests/action", {
+  const response = await fetch(apiPath("leave-requests/action"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -427,7 +433,7 @@ generatePayrollButton.addEventListener("click", async () => {
   generatePayrollButton.disabled = true;
   generatePayrollButton.textContent = "生成中...";
 
-  const response = await fetch("/api/payroll-runs/generate", {
+  const response = await fetch(apiPath("payroll-runs/generate"), {
     method: "POST",
     headers: { "Content-Type": "application/json" }
   });
@@ -474,7 +480,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 async function loadWorkspace() {
-  const response = await fetch("/api/bootstrap");
+  const response = await fetch(apiPath("bootstrap"));
   state.bootstrap = await response.json();
 
   hero.classList.add("is-hidden");
