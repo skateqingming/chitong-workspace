@@ -1,0 +1,763 @@
+window.CHITONG_SEED_DATA = {
+  "users": [
+    {
+      "id": "user-001",
+      "name": "林制片",
+      "email": "admin@company.local",
+      "password": "admin123",
+      "role": "admin",
+      "department": "摄影部"
+    },
+    {
+      "id": "user-002",
+      "name": "周剪辑",
+      "email": "manager@company.local",
+      "password": "manager123",
+      "role": "manager",
+      "department": "剪辑部"
+    },
+    {
+      "id": "user-003",
+      "name": "陈摄影",
+      "email": "user@company.local",
+      "password": "user123",
+      "role": "employee",
+      "department": "摄影部"
+    }
+  ],
+  "roles": [
+    {
+      "id": "admin",
+      "name": "管理员",
+      "permissions": [
+        "manage_users",
+        "view_reports",
+        "approve",
+        "audit"
+      ]
+    },
+    {
+      "id": "manager",
+      "name": "主管",
+      "permissions": [
+        "view_reports",
+        "approve"
+      ]
+    },
+    {
+      "id": "employee",
+      "name": "员工",
+      "permissions": [
+        "submit_request"
+      ]
+    }
+  ],
+  "metrics": {
+    "employeeCount": 42,
+    "pendingLeaves": 2,
+    "payrollTotal": 486300,
+    "riskAlerts": 2
+  },
+  "employees": [
+    {
+      "id": "EMP-0001",
+      "name": "林制片",
+      "department": "摄影部",
+      "title": "摄影总监",
+      "status": "active",
+      "onboardDate": "2022-03-12",
+      "leaveBalance": 9,
+      "salaryBase": 28000,
+      "phone": "13800000001",
+      "emergencyContact": "林家属 13800001001",
+      "address": "上海市徐汇区",
+      "skills": [
+        "统筹",
+        "摄影",
+        "现场调度"
+      ]
+    },
+    {
+      "id": "EMP-0002",
+      "name": "周剪辑",
+      "department": "剪辑部",
+      "title": "剪辑主管",
+      "status": "active",
+      "onboardDate": "2023-07-01",
+      "leaveBalance": 6,
+      "salaryBase": 22000,
+      "phone": "13800000002",
+      "emergencyContact": "周家属 13800001002",
+      "address": "上海市长宁区",
+      "skills": [
+        "剪辑",
+        "调色",
+        "交付管理"
+      ]
+    },
+    {
+      "id": "EMP-0003",
+      "name": "陈摄影",
+      "department": "摄影部",
+      "title": "摄影师",
+      "status": "active",
+      "onboardDate": "2025-02-18",
+      "leaveBalance": 4,
+      "salaryBase": 15000,
+      "phone": "13800000003",
+      "emergencyContact": "陈家属 13800001003",
+      "address": "上海市静安区",
+      "skills": [
+        "摄影",
+        "灯光",
+        "素材管理"
+      ]
+    },
+    {
+      "id": "EMP-0004",
+      "name": "许会计",
+      "department": "财务部",
+      "title": "薪资会计",
+      "status": "active",
+      "onboardDate": "2024-04-08",
+      "leaveBalance": 7,
+      "salaryBase": 16000,
+      "phone": "13800000004",
+      "emergencyContact": "许家属 13800001004",
+      "address": "上海市普陀区",
+      "skills": [
+        "工资核算",
+        "报销",
+        "风险提醒"
+      ]
+    }
+  ],
+  "departments": [
+    {
+      "id": "DEP-0001",
+      "name": "摄影部",
+      "owner": "林制片",
+      "headcountPlan": 14,
+      "status": "active"
+    },
+    {
+      "id": "DEP-0002",
+      "name": "剪辑部",
+      "owner": "周剪辑",
+      "headcountPlan": 10,
+      "status": "active"
+    },
+    {
+      "id": "DEP-0003",
+      "name": "财务部",
+      "owner": "许会计",
+      "headcountPlan": 6,
+      "status": "active"
+    }
+  ],
+  "positions": [
+    {
+      "id": "POS-0001",
+      "title": "摄影总监",
+      "department": "摄影部",
+      "level": "M3",
+      "salaryBand": "24k-35k",
+      "status": "active"
+    },
+    {
+      "id": "POS-0002",
+      "title": "剪辑主管",
+      "department": "剪辑部",
+      "level": "M2",
+      "salaryBand": "18k-28k",
+      "status": "active"
+    },
+    {
+      "id": "POS-0003",
+      "title": "摄影师",
+      "department": "摄影部",
+      "level": "P2",
+      "salaryBand": "12k-20k",
+      "status": "active"
+    },
+    {
+      "id": "POS-0004",
+      "title": "薪资会计",
+      "department": "财务部",
+      "level": "P2",
+      "salaryBand": "14k-20k",
+      "status": "active"
+    }
+  ],
+  "handbookArticles": [
+    {
+      "id": "HB-0001",
+      "category": "入职指南",
+      "title": "新员工入职第一天",
+      "summary": "完成账号开通、办公设备领取、通讯录加入和直属主管对齐。",
+      "owner": "人事行政",
+      "updatedAt": "2026-06-01",
+      "content": [
+        "09:30 前到前台完成签到和身份信息核验。",
+        "领取电脑、门禁、工牌和基础办公用品。",
+        "加入企业通讯录、部门群和项目协作空间。",
+        "与直属主管确认试用期目标、汇报节奏和本周优先事项。"
+      ]
+    },
+    {
+      "id": "HB-0002",
+      "category": "考勤休假",
+      "title": "考勤与请假规则",
+      "summary": "说明上下班时间、请假提前量、假期余额和异常处理方式。",
+      "owner": "人事行政",
+      "updatedAt": "2026-06-03",
+      "content": [
+        "工作日默认 09:30-18:30，午休 12:30-13:30。",
+        "年假、调休建议至少提前 1 个工作日提交。",
+        "病假可先口头同步主管，返岗后补充证明和系统申请。",
+        "忘打卡需在 24 小时内提交异常说明。"
+      ]
+    },
+    {
+      "id": "HB-0003",
+      "category": "财务报销",
+      "title": "报销材料要求",
+      "summary": "发票、付款凭证、审批截图和费用说明必须完整。",
+      "owner": "财务部",
+      "updatedAt": "2026-06-05",
+      "content": [
+        "报销前确认费用已获得主管或预算负责人审批。",
+        "发票抬头、税号、金额和业务说明必须一致。",
+        "单笔超过 5000 元的费用需附合同或采购说明。",
+        "每月 25 日前提交当月报销，逾期顺延到下月。"
+      ]
+    },
+    {
+      "id": "HB-0004",
+      "category": "信息安全",
+      "title": "账号与数据安全",
+      "summary": "公司账号、客户资料和工资数据不得外传或私人留存。",
+      "owner": "信息安全",
+      "updatedAt": "2026-06-06",
+      "content": [
+        "不得把公司账号、验证码、客户数据发送到私人聊天工具。",
+        "离开工位时锁屏，外出会议避免展示敏感数据。",
+        "发现异常登录、钓鱼链接或设备丢失，立即同步 IT。",
+        "薪资、人事、合同数据仅限授权人员查看。"
+      ]
+    }
+  ],
+  "sopWorkflows": [
+    {
+      "id": "SOP-0001",
+      "name": "请假申请 SOP",
+      "department": "全员",
+      "scenario": "员工需要年假、调休、病假或事假时使用。",
+      "owner": "人事行政",
+      "sla": "主管 1 个工作日内处理",
+      "steps": [
+        "员工在系统选择请假类型、天数和原因。",
+        "直属主管确认排班、项目影响和交接安排。",
+        "审批通过后，系统扣减假期余额并记录审计日志。",
+        "员工休假前完成必要工作交接。"
+      ]
+    },
+    {
+      "id": "SOP-0002",
+      "name": "费用报销 SOP",
+      "department": "全员",
+      "scenario": "员工产生差旅、采购、活动等合规费用后使用。",
+      "owner": "财务部",
+      "sla": "财务 3 个工作日内初审",
+      "steps": [
+        "员工整理发票、付款凭证和审批记录。",
+        "提交报销申请并选择费用归属部门和项目。",
+        "主管确认业务真实性，财务复核票据合规性。",
+        "复核通过后进入付款批次。"
+      ]
+    },
+    {
+      "id": "SOP-0003",
+      "name": "拍摄交付 SOP",
+      "department": "摄影部",
+      "scenario": "拍摄任务从通告、现场执行到素材交接时使用。",
+      "owner": "摄影部",
+      "sla": "当日完成录入",
+      "steps": [
+        "确认拍摄通告、机位、灯光、收音和道具清单。",
+        "现场完成素材编号、镜头备注和异常记录。",
+        "收工后将素材交给剪辑部并同步备份路径。",
+        "主管确认素材完整后关闭拍摄任务。"
+      ]
+    },
+    {
+      "id": "SOP-0004",
+      "name": "设备报修 SOP",
+      "department": "全员",
+      "scenario": "电脑、网络、门禁或会议设备异常时使用。",
+      "owner": "信息技术",
+      "sla": "紧急问题 4 小时内响应",
+      "steps": [
+        "员工描述故障现象、影响范围和设备编号。",
+        "IT 判断远程处理或现场处理。",
+        "如需更换设备，登记临时设备和归还时间。",
+        "处理完成后员工确认问题关闭。"
+      ]
+    }
+  ],
+  "workSheets": [
+    {
+      "id": "WS-0001",
+      "title": "今日拍摄任务表",
+      "department": "摄影部",
+      "owner": "陈摄影",
+      "participants": [
+        "陈摄影",
+        "林制片"
+      ],
+      "audienceDepartments": [
+        "摄影部"
+      ],
+      "audienceTitles": [
+        "摄影师",
+        "摄影总监"
+      ],
+      "status": "进行中",
+      "fields": [
+        "客户/项目",
+        "场景",
+        "机位",
+        "素材编号",
+        "完成状态"
+      ],
+      "updatedAt": "2026-06-10"
+    },
+    {
+      "id": "WS-0002",
+      "title": "剪辑交付进度表",
+      "department": "剪辑部",
+      "owner": "周剪辑",
+      "participants": [
+        "周剪辑",
+        "林制片"
+      ],
+      "audienceDepartments": [
+        "剪辑部"
+      ],
+      "audienceTitles": [
+        "剪辑主管"
+      ],
+      "status": "待复核",
+      "fields": [
+        "项目",
+        "粗剪",
+        "精剪",
+        "调色",
+        "导出",
+        "客户反馈"
+      ],
+      "updatedAt": "2026-06-10"
+    },
+    {
+      "id": "WS-0003",
+      "title": "报销与付款跟踪表",
+      "department": "财务部",
+      "owner": "许会计",
+      "participants": [
+        "许会计"
+      ],
+      "audienceDepartments": [
+        "财务部"
+      ],
+      "audienceTitles": [
+        "薪资会计"
+      ],
+      "status": "本周更新",
+      "fields": [
+        "申请人",
+        "费用类型",
+        "发票",
+        "审批",
+        "付款批次"
+      ],
+      "updatedAt": "2026-06-09"
+    }
+  ],
+  "schedules": [
+    {
+      "id": "SCH-0001",
+      "date": "2026-06-11",
+      "day": "周四",
+      "time": "09:30",
+      "title": "晨会与今日任务分配",
+      "department": "全员",
+      "location": "会议室 A",
+      "owner": "林制片"
+    },
+    {
+      "id": "SCH-0002",
+      "date": "2026-06-11",
+      "day": "周四",
+      "time": "10:30",
+      "title": "产品短视频拍摄",
+      "department": "摄影部",
+      "location": "1 号棚",
+      "owner": "陈摄影"
+    },
+    {
+      "id": "SCH-0003",
+      "date": "2026-06-12",
+      "day": "周五",
+      "time": "15:00",
+      "title": "客户片初剪复核",
+      "department": "剪辑部",
+      "location": "剪辑室 2",
+      "owner": "周剪辑"
+    },
+    {
+      "id": "SCH-0004",
+      "date": "2026-06-13",
+      "day": "周六",
+      "time": "17:30",
+      "title": "本日费用与工时确认",
+      "department": "财务部",
+      "location": "线上",
+      "owner": "许会计"
+    }
+  ],
+  "notices": [
+    {
+      "id": "NTC-0001",
+      "title": "本周拍摄素材命名统一规范",
+      "department": "摄影部",
+      "publisher": "林制片",
+      "priority": "重要",
+      "publishedAt": "2026-06-10",
+      "content": "素材文件统一使用 项目名_日期_机位_镜号 命名，收工后同步到项目盘。"
+    },
+    {
+      "id": "NTC-0002",
+      "title": "剪辑项目交付节点提醒",
+      "department": "剪辑部",
+      "publisher": "周剪辑",
+      "priority": "提醒",
+      "publishedAt": "2026-06-10",
+      "content": "所有客户片初剪需在当日 18:00 前提交复核，延迟请提前说明。"
+    },
+    {
+      "id": "NTC-0003",
+      "title": "报销单据截止时间",
+      "department": "全员",
+      "publisher": "许会计",
+      "priority": "财务",
+      "publishedAt": "2026-06-09",
+      "content": "本月报销请在 25 日前提交，发票、审批截图和付款凭证需一次上传完整。"
+    }
+  ],
+  "staffAssignments": [
+    {
+      "id": "ASG-0001",
+      "project": "品牌短片 A",
+      "department": "摄影部",
+      "lead": "林制片",
+      "members": [
+        "陈摄影",
+        "灯光助理"
+      ],
+      "participants": [
+        "林制片",
+        "陈摄影",
+        "灯光助理"
+      ],
+      "shift": "09:30-18:30",
+      "status": "已排班"
+    },
+    {
+      "id": "ASG-0002",
+      "project": "直播切片 B",
+      "department": "剪辑部",
+      "lead": "周剪辑",
+      "members": [
+        "剪辑师 1",
+        "剪辑师 2"
+      ],
+      "participants": [
+        "周剪辑",
+        "剪辑师 1",
+        "剪辑师 2"
+      ],
+      "shift": "13:00-22:00",
+      "status": "缺 1 人"
+    },
+    {
+      "id": "ASG-0003",
+      "project": "月度工资核算",
+      "department": "财务部",
+      "lead": "许会计",
+      "members": [
+        "财务助理"
+      ],
+      "participants": [
+        "许会计",
+        "财务助理"
+      ],
+      "shift": "10:00-19:00",
+      "status": "待确认"
+    }
+  ],
+  "kfsScores": [
+    {
+      "id": "KFS-0001",
+      "employeeId": "EMP-0001",
+      "employeeName": "林制片",
+      "department": "摄影部",
+      "k": 92,
+      "f": 88,
+      "s": 90,
+      "coefficient": 1.12,
+      "bonus": 3360,
+      "notes": "关键成果稳定，现场协调优秀。"
+    },
+    {
+      "id": "KFS-0002",
+      "employeeId": "EMP-0002",
+      "employeeName": "周剪辑",
+      "department": "剪辑部",
+      "k": 89,
+      "f": 94,
+      "s": 86,
+      "coefficient": 1.1,
+      "bonus": 2420,
+      "notes": "交付效率高，返修改善明显。"
+    },
+    {
+      "id": "KFS-0003",
+      "employeeId": "EMP-0003",
+      "employeeName": "陈摄影",
+      "department": "摄影部",
+      "k": 84,
+      "f": 80,
+      "s": 88,
+      "coefficient": 1.03,
+      "bonus": 450,
+      "notes": "素材完整度好，现场记录还可更细。"
+    },
+    {
+      "id": "KFS-0004",
+      "employeeId": "EMP-0004",
+      "employeeName": "许会计",
+      "department": "财务部",
+      "k": 91,
+      "f": 89,
+      "s": 92,
+      "coefficient": 1.13,
+      "bonus": 2080,
+      "notes": "工资核算准确，风险提醒及时。"
+    }
+  ],
+  "leaveRequests": [
+    {
+      "id": "LEV-0001",
+      "employeeId": "EMP-0003",
+      "employeeName": "陈摄影",
+      "type": "年假",
+      "days": 2,
+      "reason": "家庭出行",
+      "status": "pending",
+      "submittedAt": "2026-06-08"
+    },
+    {
+      "id": "LEV-0002",
+      "employeeId": "EMP-0002",
+      "employeeName": "周剪辑",
+      "type": "调休",
+      "days": 1,
+      "reason": "周末活动补休",
+      "status": "approved",
+      "submittedAt": "2026-06-04"
+    },
+    {
+      "id": "LEV-0003",
+      "employeeId": "EMP-0004",
+      "employeeName": "许会计",
+      "type": "病假",
+      "days": 0.5,
+      "reason": "上午就诊",
+      "status": "review",
+      "submittedAt": "2026-06-07"
+    }
+  ],
+  "payrollRuns": [
+    {
+      "id": "PAY-2026-06",
+      "period": "2026-06",
+      "status": "calculating",
+      "employeeCount": 42,
+      "grossPay": 486300,
+      "deductions": 62840,
+      "netPay": 423460,
+      "owner": "许会计",
+      "payslips": [
+        {
+          "id": "SLIP-2026-06-EMP-0001",
+          "employeeId": "EMP-0001",
+          "employeeName": "林制片",
+          "department": "摄影部",
+          "basePay": 28000,
+          "allowance": 2240,
+          "grossPay": 30240,
+          "deductions": 4773,
+          "netPay": 25467
+        },
+        {
+          "id": "SLIP-2026-06-EMP-0002",
+          "employeeId": "EMP-0002",
+          "employeeName": "周剪辑",
+          "department": "剪辑部",
+          "basePay": 22000,
+          "allowance": 1760,
+          "grossPay": 23760,
+          "deductions": 3727,
+          "netPay": 20033
+        },
+        {
+          "id": "SLIP-2026-06-EMP-0003",
+          "employeeId": "EMP-0003",
+          "employeeName": "陈摄影",
+          "department": "摄影部",
+          "basePay": 15000,
+          "allowance": 1200,
+          "grossPay": 16200,
+          "deductions": 2396,
+          "netPay": 13804
+        },
+        {
+          "id": "SLIP-2026-06-EMP-0004",
+          "employeeId": "EMP-0004",
+          "employeeName": "许会计",
+          "department": "财务部",
+          "basePay": 16000,
+          "allowance": 1280,
+          "grossPay": 17280,
+          "deductions": 2602,
+          "netPay": 14678
+        }
+      ]
+    },
+    {
+      "id": "PAY-2026-05",
+      "period": "2026-05",
+      "status": "paid",
+      "employeeCount": 41,
+      "grossPay": 472100,
+      "deductions": 60420,
+      "netPay": 411680,
+      "owner": "许会计"
+    }
+  ],
+  "approvals": [
+    {
+      "id": "APP-0001",
+      "title": "采购 8 台设计工作站",
+      "owner": "周主管",
+      "amount": "¥86,000",
+      "status": "pending",
+      "createdAt": "2026-06-03"
+    },
+    {
+      "id": "APP-0002",
+      "title": "市场活动物料报销",
+      "owner": "陈同学",
+      "amount": "¥12,430",
+      "status": "approved",
+      "createdAt": "2026-06-01"
+    },
+    {
+      "id": "APP-0003",
+      "title": "新增供应商准入",
+      "owner": "林总",
+      "amount": "-",
+      "status": "review",
+      "createdAt": "2026-05-29"
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "LOG-0001",
+      "userId": "user-001",
+      "action": "seed",
+      "message": "系统初始化完成",
+      "createdAt": "2026-06-01T09:00:00.000Z"
+    },
+    {
+      "id": "LOG-1781088866893",
+      "userId": "user-001",
+      "action": "login",
+      "message": "用户登录系统",
+      "createdAt": "2026-06-10T10:54:26.893Z"
+    },
+    {
+      "id": "LOG-1781088945802",
+      "userId": "user-001",
+      "action": "login",
+      "message": "用户登录系统",
+      "createdAt": "2026-06-10T10:55:45.802Z"
+    },
+    {
+      "id": "LOG-1781108981326",
+      "userId": "user-001",
+      "action": "login",
+      "message": "用户登录系统",
+      "createdAt": "2026-06-10T16:29:41.326Z"
+    },
+    {
+      "id": "LOG-1781109067711",
+      "userId": "user-003",
+      "action": "login",
+      "message": "用户登录系统",
+      "createdAt": "2026-06-10T16:31:07.711Z"
+    },
+    {
+      "id": "LOG-1781112592048",
+      "userId": "user-001",
+      "action": "login",
+      "message": "用户登录系统",
+      "createdAt": "2026-06-10T17:29:52.048Z"
+    },
+    {
+      "id": "LOG-1781112613983",
+      "userId": "user-001",
+      "action": "login",
+      "message": "用户登录系统",
+      "createdAt": "2026-06-10T17:30:13.983Z"
+    },
+    {
+      "id": "LOG-1781118089981",
+      "userId": "user-001",
+      "action": "login",
+      "message": "用户登录系统",
+      "createdAt": "2026-06-10T19:01:29.981Z"
+    },
+    {
+      "id": "LOG-1781119762463",
+      "userId": "user-003",
+      "action": "login",
+      "message": "用户登录系统",
+      "createdAt": "2026-06-10T19:29:22.463Z"
+    },
+    {
+      "id": "LOG-1781119795159",
+      "userId": "user-001",
+      "action": "login",
+      "message": "用户登录系统",
+      "createdAt": "2026-06-10T19:29:55.159Z"
+    },
+    {
+      "id": "LOG-1781141511921",
+      "userId": "user-001",
+      "action": "login",
+      "message": "用户登录系统",
+      "createdAt": "2026-06-11T01:31:51.921Z"
+    }
+  ]
+};

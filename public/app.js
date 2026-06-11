@@ -81,7 +81,7 @@ const detailDialog = document.querySelector("#detailDialog");
 const dialogContent = document.querySelector("#dialogContent");
 const dialogCloseButton = document.querySelector("#dialogCloseButton");
 const nativeFetch = typeof window.fetch === "function" ? window.fetch.bind(window) : null;
-const staticStorageKey = "chitong-static-data-v9";
+const staticStorageKey = "chitong-static-data-v10";
 let staticDataPromise = null;
 let loginInProgress = false;
 
@@ -810,6 +810,10 @@ async function getStaticData() {
       }
     }
 
+    if (window.CHITONG_SEED_DATA) {
+      return cloneData(window.CHITONG_SEED_DATA);
+    }
+
     if (nativeFetch) {
       const response = await nativeFetch("data/app.json");
       if (!response.ok) {
@@ -849,6 +853,10 @@ function readJsonWithXHR(url) {
     request.onerror = () => reject(new Error("静态演示数据无法读取。"));
     request.send();
   });
+}
+
+function cloneData(data) {
+  return JSON.parse(JSON.stringify(data));
 }
 
 function saveStaticData(data) {
