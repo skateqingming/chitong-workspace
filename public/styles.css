@@ -9,6 +9,7 @@
   --moss: #4b6f44;
   --gold: #d7a83f;
   --shadow: 0 24px 80px rgba(46, 38, 22, 0.16);
+  --title-shadow: 0 10px 24px rgba(83, 40, 22, 0.16);
 }
 
 * {
@@ -165,7 +166,7 @@ button:disabled {
 .workspace {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  gap: 12px;
+  gap: 14px;
   height: 100%;
   min-height: 0;
 }
@@ -182,14 +183,16 @@ button:disabled {
 }
 
 .section-banner {
+  position: relative;
+  overflow: hidden;
   display: flex;
   justify-content: space-between;
-  gap: 12px;
-  align-items: center;
+  gap: 18px;
+  align-items: flex-start;
   border: 1px solid var(--line);
-  border-radius: 24px;
-  padding: 16px;
-  box-shadow: 0 14px 40px rgba(46, 38, 22, 0.1);
+  border-radius: 28px;
+  padding: 20px;
+  box-shadow: 0 18px 46px rgba(46, 38, 22, 0.12);
 }
 
 .section-banner h2,
@@ -198,28 +201,54 @@ button:disabled {
 }
 
 .section-banner .eyebrow {
-  display: none;
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: 8px;
+  border-radius: 999px;
+  padding: 5px 9px;
+  color: rgba(83, 40, 22, 0.72);
+  background: rgba(255, 255, 255, 0.52);
+  font-size: 10px;
+  letter-spacing: 0.14em;
 }
 
 .section-banner p:not(.eyebrow) {
-  display: none;
+  display: block;
+  max-width: 26rem;
+  margin-top: 8px;
+  color: rgba(24, 32, 25, 0.62);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.55;
 }
 
 .section-banner h2 {
-  font-size: 24px;
-  letter-spacing: -0.04em;
+  color: var(--ink);
+  font-size: clamp(30px, 8vw, 42px);
+  line-height: 0.98;
+  letter-spacing: -0.07em;
+  text-shadow: var(--title-shadow);
 }
 
 .today-meta {
   display: block;
-  margin-top: 8px;
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 800;
+  width: fit-content;
+  margin-top: 10px;
+  border-radius: 999px;
+  padding: 7px 11px;
+  color: var(--moss);
+  background: rgba(75, 111, 68, 0.12);
+  font-size: 13px;
+  font-weight: 900;
 }
 
 .section-banner .pill {
+  position: relative;
+  z-index: 1;
   white-space: nowrap;
+  color: #fffaf0;
+  background: linear-gradient(135deg, var(--cedar), #532816);
+  box-shadow: 0 12px 28px rgba(83, 40, 22, 0.18);
 }
 
 .employee-banner {
@@ -305,31 +334,47 @@ button:disabled {
 }
 
 .panel {
-  padding: 16px;
-  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  padding: 18px;
+  border-radius: 26px;
   box-shadow: 0 14px 42px rgba(46, 38, 22, 0.1);
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: linear-gradient(180deg, var(--cedar), rgba(215, 168, 63, 0.62));
 }
 
 .panel-heading {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 12px;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  padding-left: 4px;
 }
 
 .panel-heading .eyebrow {
-  display: none;
+  display: block;
+  margin-bottom: 5px;
+  color: rgba(143, 63, 34, 0.72);
+  font-size: 10px;
+  letter-spacing: 0.12em;
 }
 
 .panel-heading h3 {
-  font-size: 20px;
-  letter-spacing: -0.03em;
+  font-size: 23px;
+  line-height: 1.05;
+  letter-spacing: -0.055em;
 }
 
 .pill {
   border-radius: 999px;
-  padding: 7px 10px;
+  padding: 7px 11px;
   color: var(--moss);
   background: rgba(75, 111, 68, 0.12);
   font-size: 12px;
@@ -383,8 +428,13 @@ button:disabled {
   align-items: center;
   border: 1px solid var(--line);
   border-radius: 18px;
-  padding: 14px;
+  padding: 15px;
   background: rgba(255, 255, 255, 0.45);
+}
+
+.row strong {
+  font-size: 16px;
+  letter-spacing: -0.02em;
 }
 
 .row p {
@@ -672,16 +722,21 @@ dl {
 .notice-card,
 .profile-card {
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-radius: 24px;
   padding: 18px;
-  background: rgba(255, 255, 255, 0.5);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.74), rgba(255, 252, 243, 0.48)),
+    rgba(255, 255, 255, 0.5);
+  box-shadow: 0 10px 30px rgba(46, 38, 22, 0.07);
 }
 
 .work-card h4,
 .assignment-card h4,
 .notice-card h4 {
-  margin: 8px 0 6px;
-  font-size: 18px;
+  margin: 10px 0 7px;
+  font-size: 21px;
+  line-height: 1.18;
+  letter-spacing: -0.045em;
 }
 
 .work-card p,
@@ -746,18 +801,31 @@ dl {
 
 .timeline-item {
   display: grid;
-  grid-template-columns: 72px 1fr;
+  grid-template-columns: 76px 1fr;
   gap: 14px;
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-radius: 24px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(215, 168, 63, 0.1));
 }
 
 .timeline-item time {
-  color: var(--cedar);
-  font-size: 20px;
+  display: grid;
+  place-items: center;
+  min-height: 54px;
+  border-radius: 18px;
+  color: #fffaf0;
+  background: linear-gradient(135deg, var(--cedar), #532816);
+  font-size: 18px;
   font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.timeline-item strong {
+  display: block;
+  font-size: 18px;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
 }
 
 .timeline-item p {
@@ -817,15 +885,18 @@ dl {
   gap: 18px;
   align-items: center;
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-radius: 24px;
   padding: 18px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.62), rgba(75, 111, 68, 0.08));
+  box-shadow: 0 10px 30px rgba(46, 38, 22, 0.07);
 }
 
 .knowledge-card h4 {
-  margin: 8px 0 6px;
-  font-size: 18px;
+  margin: 10px 0 7px;
+  font-size: 21px;
+  line-height: 1.18;
+  letter-spacing: -0.045em;
 }
 
 .knowledge-card p {
@@ -843,7 +914,7 @@ dl {
 .tag {
   display: inline-flex;
   border-radius: 999px;
-  padding: 5px 9px;
+  padding: 6px 10px;
   color: var(--moss);
   background: rgba(75, 111, 68, 0.12);
   font-size: 12px;
@@ -910,6 +981,7 @@ dl {
   padding: 14px 8px;
   color: var(--muted);
   background: transparent;
+  transition: transform 0.18s ease, background 0.18s ease;
 }
 
 .bottom-nav-item span {
@@ -925,6 +997,8 @@ dl {
 .bottom-nav-item.is-active {
   color: #fffaf0;
   background: linear-gradient(135deg, var(--cedar), #532816);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(83, 40, 22, 0.2);
 }
 
 .bottom-nav-item.is-active span {
@@ -1004,6 +1078,7 @@ dd {
 
   .section-banner {
     flex-direction: row;
+    padding: 18px;
   }
 
   .metrics {

@@ -1,9 +1,9 @@
-const CACHE_NAME = "chitong-internal-v4";
+const CACHE_NAME = "chitong-internal-v5";
 const APP_SHELL = [
   "./",
   "index.html",
   "styles.css",
-  "app.js?v=20260610-4",
+  "app.js?v=20260610-5",
   "manifest.webmanifest",
   "icon.svg",
   "data/app.json"
