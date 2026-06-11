@@ -80,9 +80,10 @@ const logoutButton = document.querySelector("#logoutButton");
 const detailDialog = document.querySelector("#detailDialog");
 const dialogContent = document.querySelector("#dialogContent");
 const dialogCloseButton = document.querySelector("#dialogCloseButton");
-const nativeFetch = window.fetch.bind(window);
-const staticStorageKey = "chitong-static-data-v8";
+const nativeFetch = typeof window.fetch === "function" ? window.fetch.bind(window) : null;
+const staticStorageKey = "chitong-static-data-v9";
 let staticDataPromise = null;
+let loginInProgress = false;
 
 const apiPath = (endpoint) => `api/${endpoint}`;
 const isStaticHost = () => window.location.protocol === "file:" || window.location.hostname.endsWith("github.io");
@@ -96,6 +97,10 @@ const apiRequest = (endpoint, options = {}) => {
 };
 
 window.fetch = async (resource, options = {}) => {
+  if (!nativeFetch) {
+    return handleStaticApi(new URL(typeof resource === "string" ? resource : resource.url, window.location.href).pathname, options);
+  }
+
   const requestUrl = typeof resource === "string" ? resource : resource.url;
   const pathname = new URL(requestUrl, window.location.href).pathname;
 
@@ -126,8 +131,16 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-loginForm.addEventListener("submit", async (event) => {
+loginForm.addEventListener("submit", handleLogin);
+loginForm.querySelector("button[type='submit']")?.addEventListener("click", handleLogin);
+
+async function handleLogin(event) {
   event.preventDefault();
+  if (loginInProgress) {
+    return;
+  }
+
+  loginInProgress = true;
   const formData = new FormData(loginForm);
   const payload = Object.fromEntries(formData.entries());
 
@@ -146,10 +159,12 @@ loginForm.addEventListener("submit", async (event) => {
 
     state.user = result.user;
     await loadWorkspace();
-  } catch {
-    alert("登录组件没有加载成功，请刷新页面后再试。如果是在手机主屏幕打开，请删除旧图标后重新添加。");
+  } catch (error) {
+    alert(`登录没有完成：${error.message || "浏览器数据组件不可用"}。请刷新页面后再试。`);
+  } finally {
+    loginInProgress = false;
   }
-});
+}
 
 logoutButton?.addEventListener("click", () => {
   state.user = null;
@@ -795,14 +810,45 @@ async function getStaticData() {
       }
     }
 
-    const response = await nativeFetch("data/app.json");
-    if (!response.ok) {
-      throw new Error("静态演示数据加载失败。");
+    if (nativeFetch) {
+      const response = await nativeFetch("data/app.json");
+      if (!response.ok) {
+        throw new Error("静态演示数据加载失败。");
+      }
+      return response.json();
     }
-    return response.json();
+
+    return readJsonWithXHR("data/app.json");
   })();
 
   return staticDataPromise;
+}
+
+function readJsonWithXHR(url) {
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.responseType = "json";
+    request.onload = () => {
+      if (request.status < 200 || request.status >= 300) {
+        reject(new Error("静态演示数据加载失败。"));
+        return;
+      }
+
+      if (request.response) {
+        resolve(request.response);
+        return;
+      }
+
+      try {
+        resolve(JSON.parse(request.responseText));
+      } catch {
+        reject(new Error("静态演示数据格式不正确。"));
+      }
+    };
+    request.onerror = () => reject(new Error("静态演示数据无法读取。"));
+    request.send();
+  });
 }
 
 function saveStaticData(data) {
