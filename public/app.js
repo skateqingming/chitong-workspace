@@ -81,10 +81,19 @@ const detailDialog = document.querySelector("#detailDialog");
 const dialogContent = document.querySelector("#dialogContent");
 const dialogCloseButton = document.querySelector("#dialogCloseButton");
 const nativeFetch = window.fetch.bind(window);
-const staticStorageKey = "chitong-static-data-v3";
+const staticStorageKey = "chitong-static-data-v8";
 let staticDataPromise = null;
 
 const apiPath = (endpoint) => `api/${endpoint}`;
+const isStaticHost = () => window.location.protocol === "file:" || window.location.hostname.endsWith("github.io");
+
+const apiRequest = (endpoint, options = {}) => {
+  if (isStaticHost()) {
+    return handleStaticApi(`/api/${endpoint}`, options);
+  }
+
+  return fetch(apiPath(endpoint), options);
+};
 
 window.fetch = async (resource, options = {}) => {
   const requestUrl = typeof resource === "string" ? resource : resource.url;
@@ -123,7 +132,7 @@ loginForm.addEventListener("submit", async (event) => {
   const payload = Object.fromEntries(formData.entries());
 
   try {
-    const response = await fetch(apiPath("login"), {
+    const response = await apiRequest("login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -155,7 +164,7 @@ profileForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(profileForm);
 
-  const response = await fetch(apiPath("profile"), {
+  const response = await apiRequest("profile", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -174,7 +183,7 @@ employeeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(employeeForm);
 
-  const response = await fetch(apiPath("employees"), {
+  const response = await apiRequest("employees", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -194,7 +203,7 @@ workSheetForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(workSheetForm);
 
-  const response = await fetch(apiPath("work-sheets"), {
+  const response = await apiRequest("work-sheets", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -216,7 +225,7 @@ approvalForm.addEventListener("submit", async (event) => {
   const payload = Object.fromEntries(formData.entries());
   payload.owner = state.user?.name || "未知提交人";
 
-  const response = await fetch(apiPath("approvals"), {
+  const response = await apiRequest("approvals", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -236,7 +245,7 @@ departmentForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(departmentForm);
 
-  const response = await fetch(apiPath("departments"), {
+  const response = await apiRequest("departments", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -256,7 +265,7 @@ positionForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(positionForm);
 
-  const response = await fetch(apiPath("positions"), {
+  const response = await apiRequest("positions", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -276,7 +285,7 @@ noticeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(noticeForm);
 
-  const response = await fetch(apiPath("notices"), {
+  const response = await apiRequest("notices", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -296,7 +305,7 @@ scheduleForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(scheduleForm);
 
-  const response = await fetch(apiPath("schedules"), {
+  const response = await apiRequest("schedules", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -353,7 +362,7 @@ leaveForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(leaveForm);
 
-  const response = await fetch(apiPath("leave-requests"), {
+  const response = await apiRequest("leave-requests", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData.entries()))
@@ -402,7 +411,7 @@ leaveList.addEventListener("click", async (event) => {
     return;
   }
 
-  const response = await fetch(apiPath("leave-requests/action"), {
+  const response = await apiRequest("leave-requests/action", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -433,7 +442,7 @@ generatePayrollButton.addEventListener("click", async () => {
   generatePayrollButton.disabled = true;
   generatePayrollButton.textContent = "生成中...";
 
-  const response = await fetch(apiPath("payroll-runs/generate"), {
+  const response = await apiRequest("payroll-runs/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" }
   });
@@ -480,7 +489,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 async function loadWorkspace() {
-  const response = await fetch(apiPath("bootstrap"));
+  const response = await apiRequest("bootstrap");
   state.bootstrap = await response.json();
 
   hero.classList.add("is-hidden");
@@ -779,7 +788,11 @@ async function getStaticData() {
   staticDataPromise = (async () => {
     const stored = localStorage.getItem(staticStorageKey);
     if (stored) {
-      return JSON.parse(stored);
+      try {
+        return JSON.parse(stored);
+      } catch {
+        localStorage.removeItem(staticStorageKey);
+      }
     }
 
     const response = await nativeFetch("data/app.json");
