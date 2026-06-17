@@ -164,9 +164,7 @@ button:disabled {
 }
 
 .workspace {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 14px;
+  display: block;
   height: 100%;
   min-height: 0;
 }
@@ -300,9 +298,9 @@ button:disabled {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
-  min-height: 0;
-  overflow: auto;
-  padding: 0 2px 2px;
+  min-height: auto;
+  overflow: visible;
+  padding: 0 2px 22px;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
@@ -352,7 +350,19 @@ button:disabled {
   display: none;
   gap: 12px;
   min-height: 0;
-  overflow: hidden;
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: 18px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.module-panel::-webkit-scrollbar {
+  display: none;
+}
+
+.module-panel > .grid {
+  margin-top: 12px;
 }
 
 .module-panel.is-role-hidden,
@@ -361,12 +371,11 @@ button:disabled {
 }
 
 .module-panel.is-active {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  display: block;
 }
 
 .module-panel[data-module-panel="admin"].is-active {
-  grid-template-rows: auto minmax(0, 1fr);
+  display: block;
 }
 
 .panel {
@@ -388,6 +397,38 @@ button:disabled {
   align-items: flex-start;
   margin-bottom: 16px;
   padding-left: 4px;
+}
+
+.module-panel[data-module-panel="admin"] .panel-heading {
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+.module-panel[data-module-panel="admin"] .panel-heading > .pill {
+  display: none;
+}
+
+.module-panel[data-module-panel="admin"] .panel-heading::after {
+  content: "进入";
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 7px 11px;
+  color: var(--cedar);
+  background: rgba(143, 63, 34, 0.1);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.module-panel[data-module-panel="admin"] .panel.is-open .panel-heading {
+  margin-bottom: 14px;
+}
+
+.module-panel[data-module-panel="admin"] .panel.is-open .panel-heading::after {
+  content: "收起";
+}
+
+.module-panel[data-module-panel="admin"] .panel:not(.is-open) > :not(.panel-heading) {
+  display: none;
 }
 
 .panel-heading > div {

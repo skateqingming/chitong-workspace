@@ -26,6 +26,7 @@ const hero = document.querySelector(".hero");
 const loginCard = document.querySelector("#loginCard");
 const workspace = document.querySelector("#workspace");
 const bottomNav = document.querySelector("#bottomNav");
+const adminGrid = document.querySelector(".hr-grid");
 const welcomeTitle = document.querySelector("#welcomeTitle");
 const metrics = document.querySelector("#metrics");
 const workTodayMeta = document.querySelector("#workTodayMeta");
@@ -496,6 +497,21 @@ moduleNavItems.forEach((button) => {
   });
 });
 
+adminGrid?.addEventListener("click", (event) => {
+  const heading = event.target.closest(".panel-heading");
+  const panel = heading?.closest(".panel");
+  if (!panel || !adminGrid.contains(panel)) {
+    return;
+  }
+
+  adminGrid.querySelectorAll(".panel.is-open").forEach((openPanel) => {
+    if (openPanel !== panel) {
+      openPanel.classList.remove("is-open");
+    }
+  });
+  panel.classList.toggle("is-open");
+});
+
 payrollList.addEventListener("click", (event) => {
   const button = event.target.closest("[data-payslip-detail]");
   if (!button) {
@@ -958,12 +974,17 @@ function jsonResponse(status, payload) {
 function setActiveModule(moduleName) {
   const allowedModules = getAllowedModules();
   const safeModuleName = allowedModules.includes(moduleName) ? moduleName : allowedModules[0];
+  const isModuleChange = state.activeModule !== safeModuleName;
   state.activeModule = safeModuleName;
 
   modulePanels.forEach((panel) => {
     const isAllowed = allowedModules.includes(panel.dataset.modulePanel);
+    const isActive = panel.dataset.modulePanel === safeModuleName && isAllowed;
     panel.classList.toggle("is-role-hidden", !isAllowed);
-    panel.classList.toggle("is-active", panel.dataset.modulePanel === safeModuleName && isAllowed);
+    panel.classList.toggle("is-active", isActive);
+    if (isActive && isModuleChange) {
+      panel.scrollTop = 0;
+    }
   });
 
   moduleNavItems.forEach((button) => {
