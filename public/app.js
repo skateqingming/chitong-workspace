@@ -34,6 +34,10 @@ const moduleNavItems = document.querySelectorAll("[data-module-target]");
 const workSheetList = document.querySelector("#workSheetList");
 const profileForm = document.querySelector("#profileForm");
 const profileSummary = document.querySelector("#profileSummary");
+const avatarInput = document.querySelector("#avatarInput");
+const avatarPreview = document.querySelector("#avatarPreview");
+const avatarName = document.querySelector("#avatarName");
+const avatarRole = document.querySelector("#avatarRole");
 const scheduleList = document.querySelector("#scheduleList");
 const employeeScheduleList = document.querySelector("#employeeScheduleList");
 const weeklyScheduleList = document.querySelector("#weeklyScheduleList");
@@ -89,6 +93,7 @@ let staticDataPromise = null;
 let loginInProgress = false;
 
 const apiPath = (endpoint) => `api/${endpoint}`;
+const avatarStorageKey = "chitong-avatar-image";
 const isStaticHost = () => window.location.protocol === "file:" || window.location.hostname.endsWith("github.io");
 
 const apiRequest = (endpoint, options = {}) => {
@@ -195,6 +200,20 @@ profileForm.addEventListener("submit", async (event) => {
   }
 
   await loadWorkspace();
+});
+
+avatarInput?.addEventListener("change", () => {
+  const file = avatarInput.files?.[0];
+  if (!file) {
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    localStorage.setItem(avatarStorageKey, String(reader.result || ""));
+    renderAvatar();
+  });
+  reader.readAsDataURL(file);
 });
 
 employeeForm.addEventListener("submit", async (event) => {
@@ -1130,6 +1149,7 @@ function renderTodayWorkMeta() {
 
 function renderProfile() {
   const employee = getCurrentEmployee();
+  renderAvatar(employee);
   if (!employee) {
     profileSummary.innerHTML = `<p class="empty-state">暂时没有匹配到你的员工档案。</p>`;
     return;
@@ -1150,6 +1170,26 @@ function renderProfile() {
       </div>
     </article>
   `;
+}
+
+function renderAvatar(employee = getCurrentEmployee()) {
+  if (!avatarPreview || !avatarName || !avatarRole) {
+    return;
+  }
+
+  const image = localStorage.getItem(avatarStorageKey);
+  if (image) {
+    avatarPreview.style.backgroundImage = `url("${image}")`;
+    avatarPreview.textContent = "";
+  } else {
+    avatarPreview.style.backgroundImage = "";
+    avatarPreview.textContent = (state.user?.name || employee?.name || "赤").slice(0, 1);
+  }
+
+  avatarName.textContent = state.user?.name || employee?.name || "个人资料";
+  avatarRole.textContent = employee
+    ? `${employee.department} · ${employee.title} · 点击头像上传照片`
+    : "点击头像上传照片，个人资料设置在这里";
 }
 
 function renderSchedules() {

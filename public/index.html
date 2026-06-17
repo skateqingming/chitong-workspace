@@ -10,7 +10,7 @@
     <title>赤瞳工作空间</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icon.svg">
-    <link rel="stylesheet" href="styles.css?v=20260610-12">
+    <link rel="stylesheet" href="styles.css?v=20260610-13">
   </head>
   <body>
     <main class="shell">
@@ -80,6 +80,17 @@
                 <span class="pill">一周</span>
               </div>
               <div class="timeline-list" id="weeklyScheduleList"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Notice</p>
+                  <h3>公告</h3>
+                </div>
+                <span class="pill">管理员发布</span>
+              </div>
+              <div class="notice-list" id="noticeList"></div>
             </article>
           </section>
         </section>
@@ -174,22 +185,26 @@
           </section>
 
           <section class="grid employee-grid">
-            <article class="panel">
-              <div class="panel-heading">
-                <div>
-                  <p class="eyebrow">Profile</p>
-                  <h3>个人资料</h3>
-                </div>
-                <span class="pill">可修改</span>
-              </div>
-              <form class="quick-form profile-form" id="profileForm">
-                <input name="phone" placeholder="手机号">
-                <input name="emergencyContact" placeholder="紧急联系人">
-                <input name="address" placeholder="现住地址">
-                <input name="skills" placeholder="技能标签，例如：摄影、灯光、剪辑">
-                <button type="submit">保存资料</button>
-              </form>
-              <div class="profile-summary" id="profileSummary"></div>
+            <article class="panel avatar-panel">
+              <label class="avatar-upload">
+                <input id="avatarInput" type="file" accept="image/*">
+                <span class="avatar-preview" id="avatarPreview">赤</span>
+                <span class="avatar-copy">
+                  <strong id="avatarName">个人头像</strong>
+                  <small id="avatarRole">点击上传头像，资料设置在这里</small>
+                </span>
+              </label>
+              <details class="profile-settings">
+                <summary>个人资料设置</summary>
+                <form class="quick-form profile-form" id="profileForm">
+                  <input name="phone" placeholder="手机号">
+                  <input name="emergencyContact" placeholder="紧急联系人">
+                  <input name="address" placeholder="现住地址">
+                  <input name="skills" placeholder="技能标签，例如：摄影、灯光、剪辑">
+                  <button type="submit">保存资料</button>
+                </form>
+                <div class="profile-summary" id="profileSummary"></div>
+              </details>
             </article>
 
             <article class="panel">
@@ -237,16 +252,6 @@
               <div class="list" id="payrollList"></div>
             </article>
 
-            <article class="panel">
-              <div class="panel-heading">
-                <div>
-                  <p class="eyebrow">Notice</p>
-                  <h3>公告</h3>
-                </div>
-                <span class="pill">管理员发布</span>
-              </div>
-              <div class="notice-list" id="noticeList"></div>
-            </article>
           </section>
         </section>
 
@@ -260,9 +265,9 @@
           <span class="pill">组织</span>
         </section>
 
-        <section class="metrics" id="metrics"></section>
-
         <section class="grid hr-grid">
+          <section class="metrics" id="metrics"></section>
+
           <article class="panel">
             <div class="panel-heading">
               <div>
@@ -445,7 +450,7 @@
         </div>
       </dialog>
     </main>
-    <script src="seed-data.js?v=20260610-12"></script>
-    <script src="app.js?v=20260610-12" type="module"></script>
+    <script src="seed-data.js?v=20260610-13"></script>
+    <script src="app.js?v=20260610-13" type="module"></script>
   </body>
 </html>
