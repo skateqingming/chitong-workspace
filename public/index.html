@@ -10,7 +10,7 @@
     <title>赤瞳工作空间</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icon.svg">
-    <link rel="stylesheet" href="styles.css?v=20260610-16">
+    <link rel="stylesheet" href="styles.css?v=20260610-17">
   </head>
   <body>
     <main class="shell">
@@ -252,6 +252,15 @@
               <div class="list" id="payrollList"></div>
             </article>
 
+            <article class="panel logout-panel">
+              <div>
+                <p class="eyebrow">Account</p>
+                <h3>退出工作台</h3>
+                <p>结束当前账号使用，回到登录页面。</p>
+              </div>
+              <button class="ghost logout-action" id="logoutButton" type="button">退出登录</button>
+            </article>
+
           </section>
         </section>
 
@@ -455,9 +464,6 @@
         <button class="bottom-nav-item" type="button" data-module-target="me">
           <span>我</span>
         </button>
-        <button class="bottom-nav-item logout-nav-item" id="logoutButton" type="button">
-          <span>退出</span>
-        </button>
       </nav>
 
       <dialog class="detail-dialog" id="detailDialog">
@@ -467,7 +473,7 @@
         </div>
       </dialog>
     </main>
-    <script src="seed-data.js?v=20260610-16"></script>
-    <script src="app.js?v=20260610-16" type="module"></script>
+    <script src="seed-data.js?v=20260610-17"></script>
+    <script src="app.js?v=20260610-17" type="module"></script>
   </body>
 </html>

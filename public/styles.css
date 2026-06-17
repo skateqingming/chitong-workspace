@@ -736,7 +736,7 @@ dl {
 }
 
 .salary-breakdown {
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .salary-breakdown .net {
@@ -1207,12 +1207,12 @@ dl {
 }
 
 .bottom-nav[data-role="employee"] {
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .bottom-nav[data-role="admin"],
 .bottom-nav[data-role="manager"] {
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .bottom-nav-item {
@@ -1245,8 +1245,16 @@ dl {
   color: #fffaf0;
 }
 
-.logout-nav-item span {
+.logout-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.logout-action {
+  width: 100%;
+  justify-content: center;
   color: var(--cedar);
+  background: rgba(143, 63, 34, 0.1);
 }
 
 .module-panel[data-module-panel="admin"] .metrics,
