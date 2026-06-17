@@ -14,6 +14,10 @@ const state = {
     query: "",
     department: "all"
   },
+  knowledge: {
+    query: "",
+    activeTab: "handbook"
+  },
   activeModule: "work"
 };
 
@@ -69,10 +73,9 @@ const scheduleCancelButton = document.querySelector("#scheduleCancelButton");
 const employeeSearchInput = document.querySelector("#employeeSearchInput");
 const departmentFilter = document.querySelector("#departmentFilter");
 const positionFilter = document.querySelector("#positionFilter");
-const handbookSearchInput = document.querySelector("#handbookSearchInput");
-const handbookCategoryFilter = document.querySelector("#handbookCategoryFilter");
-const sopSearchInput = document.querySelector("#sopSearchInput");
-const sopDepartmentFilter = document.querySelector("#sopDepartmentFilter");
+const knowledgeSearchInput = document.querySelector("#knowledgeSearchInput");
+const knowledgeTabButtons = document.querySelectorAll("[data-knowledge-tab]");
+const knowledgeSections = document.querySelectorAll("[data-knowledge-section]");
 const leaveForm = document.querySelector("#leaveForm");
 const leaveEmployeeSelect = document.querySelector("#leaveEmployeeSelect");
 const generatePayrollButton = document.querySelector("#generatePayrollButton");
@@ -353,24 +356,18 @@ positionFilter.addEventListener("change", () => {
   renderEmployees();
 });
 
-handbookSearchInput.addEventListener("input", () => {
-  state.handbookFilters.query = handbookSearchInput.value.trim().toLowerCase();
+knowledgeSearchInput.addEventListener("input", () => {
+  state.knowledge.query = knowledgeSearchInput.value.trim().toLowerCase();
   renderHandbookArticles();
-});
-
-handbookCategoryFilter.addEventListener("change", () => {
-  state.handbookFilters.category = handbookCategoryFilter.value;
-  renderHandbookArticles();
-});
-
-sopSearchInput.addEventListener("input", () => {
-  state.sopFilters.query = sopSearchInput.value.trim().toLowerCase();
   renderSopWorkflows();
+  renderKnowledgeExtras();
 });
 
-sopDepartmentFilter.addEventListener("change", () => {
-  state.sopFilters.department = sopDepartmentFilter.value;
-  renderSopWorkflows();
+knowledgeTabButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    state.knowledge.activeTab = button.dataset.knowledgeTab;
+    renderKnowledgeNavigation();
+  });
 });
 
 leaveForm.addEventListener("submit", async (event) => {
@@ -974,17 +971,16 @@ function getAllowedModules() {
 }
 
 function renderEmployeePortalControls() {
-  const handbookCategories = [...new Set(state.bootstrap.handbookArticles.map((item) => item.category))];
-  const sopDepartments = [...new Set(state.bootstrap.sopWorkflows.map((item) => item.department))];
+  renderKnowledgeNavigation();
+}
 
-  handbookCategoryFilter.innerHTML = `<option value="all">全部分类</option>${handbookCategories
-    .map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`)
-    .join("")}`;
-  sopDepartmentFilter.innerHTML = `<option value="all">全部部门</option>${sopDepartments
-    .map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`)
-    .join("")}`;
-  handbookCategoryFilter.value = state.handbookFilters.category;
-  sopDepartmentFilter.value = state.sopFilters.department;
+function renderKnowledgeNavigation() {
+  knowledgeTabButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.knowledgeTab === state.knowledge.activeTab);
+  });
+  knowledgeSections.forEach((section) => {
+    section.classList.toggle("is-active", section.dataset.knowledgeSection === state.knowledge.activeTab);
+  });
 }
 
 function renderHandbookArticles() {
@@ -1024,23 +1020,35 @@ function renderSopWorkflows() {
 }
 
 function renderKnowledgeExtras() {
-  faqList.innerHTML = [
+  faqList.innerHTML = filterKnowledgePairs([
     ["忘记素材命名怎么办？", "先按项目名_日期_机位_镜号补齐，再同步给项目负责人确认。"],
     ["客户临时改需求怎么办？", "先记录变更点和影响时间，再由主管确认是否调整排期。"],
     ["报销材料不齐怎么办？", "先补发票、付款凭证和审批截图，缺一项先不要提交。"]
-  ].map(([title, summary]) => renderSimpleKnowledgeCard("FAQ", title, summary)).join("");
+  ]).map(([title, summary]) => renderSimpleKnowledgeCard("FAQ", title, summary)).join("")
+    || `<p class="empty-state">没有找到相关疑难解答。</p>`;
 
-  shootingReferenceList.innerHTML = [
+  shootingReferenceList.innerHTML = filterKnowledgePairs([
     ["产品短视频镜头参考", "开场 3 秒给主体，细节镜头补质感，结尾保留品牌露出。"],
     ["采访类布光参考", "主光 45 度，轮廓光压暗背景，收音先试录 10 秒。"],
     ["素材交接参考", "当天素材当天备份，镜头备注和异常情况必须同步剪辑。"]
-  ].map(([title, summary]) => renderSimpleKnowledgeCard("Reference", title, summary)).join("");
+  ]).map(([title, summary]) => renderSimpleKnowledgeCard("Reference", title, summary)).join("")
+    || `<p class="empty-state">没有找到相关拍摄参考。</p>`;
 
-  standardProcessList.innerHTML = [
+  standardProcessList.innerHTML = filterKnowledgePairs([
     ["拍摄前检查", "通告、设备、电池、存储卡、道具、场地和人员到位后再开拍。"],
     ["拍摄中记录", "每组镜头记录机位、条数、异常和是否可用，避免剪辑返工。"],
     ["收工后交付", "素材编号、双备份、交接人确认，项目群同步完成状态。"]
-  ].map(([title, summary]) => renderSimpleKnowledgeCard("Standard", title, summary)).join("");
+  ]).map(([title, summary]) => renderSimpleKnowledgeCard("Standard", title, summary)).join("")
+    || `<p class="empty-state">没有找到相关标准流程。</p>`;
+}
+
+function filterKnowledgePairs(items) {
+  const query = state.knowledge.query;
+  if (!query) {
+    return items;
+  }
+
+  return items.filter(([title, summary]) => `${title} ${summary}`.toLowerCase().includes(query));
 }
 
 function renderSimpleKnowledgeCard(tag, title, summary) {
@@ -1056,26 +1064,24 @@ function renderSimpleKnowledgeCard(tag, title, summary) {
 }
 
 function getFilteredHandbookArticles() {
-  const { query, category } = state.handbookFilters;
+  const query = state.knowledge.query;
 
   return state.bootstrap.handbookArticles.filter((item) => {
     const text = `${item.category} ${item.title} ${item.summary} ${item.owner}`.toLowerCase();
     const matchesQuery = !query || text.includes(query);
-    const matchesCategory = category === "all" || item.category === category;
 
-    return matchesQuery && matchesCategory;
+    return matchesQuery;
   });
 }
 
 function getFilteredSopWorkflows() {
-  const { query, department } = state.sopFilters;
+  const query = state.knowledge.query;
 
   return state.bootstrap.sopWorkflows.filter((item) => {
     const text = `${item.name} ${item.department} ${item.scenario} ${item.owner}`.toLowerCase();
     const matchesQuery = !query || text.includes(query);
-    const matchesDepartment = department === "all" || item.department === department;
 
-    return matchesQuery && matchesDepartment;
+    return matchesQuery;
   });
 }
 

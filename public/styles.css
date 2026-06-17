@@ -323,6 +323,27 @@ button:disabled {
   grid-template-columns: 1fr;
 }
 
+.work-grid {
+  gap: 10px;
+}
+
+.work-grid .panel {
+  border: 0;
+  padding: 0 2px;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.work-grid .panel::before {
+  display: none;
+}
+
+.work-grid .panel-heading {
+  margin: 8px 0 10px;
+  padding: 0 2px;
+}
+
 .work-grid .panel:first-child {
   grid-row: auto;
 }
@@ -750,6 +771,60 @@ dl {
   gap: 12px;
 }
 
+.knowledge-hub {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.knowledge-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 12px;
+  background: rgba(255, 252, 243, 0.94);
+  box-shadow: 0 12px 34px rgba(46, 38, 22, 0.1);
+  backdrop-filter: blur(18px);
+}
+
+.knowledge-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.knowledge-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.knowledge-tab {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 9px 12px;
+  color: var(--moss);
+  background: rgba(75, 111, 68, 0.1);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.knowledge-tab.is-active {
+  color: #fffaf0;
+  background: linear-gradient(135deg, var(--cedar), #532816);
+}
+
+.knowledge-section {
+  display: none;
+}
+
+.knowledge-section.is-active {
+  display: block;
+}
+
 .work-card-list,
 .timeline-list,
 .kfs-list,
@@ -1068,6 +1143,18 @@ dl {
   color: #fffaf0;
 }
 
+.module-panel[data-module-panel="admin"] .metrics,
+.module-panel[data-module-panel="admin"] .hr-grid {
+  gap: 12px;
+}
+
+.module-panel[data-module-panel="admin"] .panel,
+.module-panel[data-module-panel="admin"] .metric-card {
+  min-height: 0;
+  border-radius: 24px;
+  box-shadow: 0 12px 34px rgba(46, 38, 22, 0.08);
+}
+
 dt {
   color: var(--muted);
   font-size: 12px;
@@ -1133,6 +1220,18 @@ dd {
 
   .panel {
     padding: 16px 15px 16px 20px;
+  }
+
+  .work-grid .panel {
+    padding: 0 2px;
+  }
+
+  .work-grid .panel-heading {
+    margin: 7px 0 8px;
+  }
+
+  .work-grid .panel-heading .pill {
+    display: none;
   }
 
   .section-banner {
@@ -1228,6 +1327,17 @@ dd {
     align-items: start;
   }
 
+  .knowledge-toolbar {
+    border-radius: 20px;
+    padding: 10px;
+  }
+
+  .knowledge-tab {
+    min-height: 36px;
+    padding: 8px 11px;
+    font-size: 12px;
+  }
+
   .assignment-card {
     grid-template-columns: 1fr auto;
     gap: 12px;
@@ -1260,6 +1370,15 @@ dd {
 
   .metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .module-panel[data-module-panel="admin"].is-active {
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+
+  .module-panel[data-module-panel="admin"] .metrics,
+  .module-panel[data-module-panel="admin"] .hr-grid {
     gap: 10px;
   }
 

@@ -10,7 +10,7 @@
     <title>赤瞳工作空间</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icon.svg">
-    <link rel="stylesheet" href="styles.css?v=20260610-11">
+    <link rel="stylesheet" href="styles.css?v=20260610-12">
   </head>
   <body>
     <main class="shell">
@@ -94,8 +94,19 @@
           <span class="pill">流程</span>
         </section>
 
-        <section class="grid employee-grid">
-          <article class="panel">
+        <section class="grid employee-grid knowledge-hub">
+          <section class="knowledge-toolbar">
+            <input id="knowledgeSearchInput" type="search" placeholder="搜索全部知识，例如：请假、报销、拍摄、设备">
+            <div class="knowledge-tabs" aria-label="知识分类">
+              <button class="knowledge-tab is-active" type="button" data-knowledge-tab="handbook">员工手册</button>
+              <button class="knowledge-tab" type="button" data-knowledge-tab="sop">工作流程</button>
+              <button class="knowledge-tab" type="button" data-knowledge-tab="faq">疑难解答</button>
+              <button class="knowledge-tab" type="button" data-knowledge-tab="reference">拍摄参考</button>
+              <button class="knowledge-tab" type="button" data-knowledge-tab="standard">标准流程</button>
+            </div>
+          </section>
+
+          <article class="panel knowledge-section is-active" data-knowledge-section="handbook">
             <div class="panel-heading">
               <div>
                 <p class="eyebrow">Handbook</p>
@@ -103,14 +114,10 @@
               </div>
               <span class="pill">Policy</span>
             </div>
-            <section class="filters" aria-label="员工手册搜索">
-              <input id="handbookSearchInput" type="search" placeholder="搜索手册，例如：报销、考勤、安全">
-              <select id="handbookCategoryFilter"></select>
-            </section>
             <div class="knowledge-list" id="handbookList"></div>
           </article>
 
-          <article class="panel">
+          <article class="panel knowledge-section" data-knowledge-section="sop">
             <div class="panel-heading">
               <div>
                 <p class="eyebrow">SOP</p>
@@ -118,14 +125,10 @@
               </div>
               <span class="pill">Step by Step</span>
             </div>
-            <section class="filters" aria-label="SOP 搜索">
-              <input id="sopSearchInput" type="search" placeholder="搜索 SOP，例如：请假、报销、设备">
-              <select id="sopDepartmentFilter"></select>
-            </section>
             <div class="knowledge-list" id="sopList"></div>
           </article>
 
-          <article class="panel">
+          <article class="panel knowledge-section" data-knowledge-section="faq">
             <div class="panel-heading">
               <div>
                 <p class="eyebrow">FAQ</p>
@@ -136,7 +139,7 @@
             <div class="knowledge-list" id="faqList"></div>
           </article>
 
-          <article class="panel">
+          <article class="panel knowledge-section" data-knowledge-section="reference">
             <div class="panel-heading">
               <div>
                 <p class="eyebrow">Reference</p>
@@ -147,7 +150,7 @@
             <div class="knowledge-list" id="shootingReferenceList"></div>
           </article>
 
-          <article class="panel">
+          <article class="panel knowledge-section" data-knowledge-section="standard">
             <div class="panel-heading">
               <div>
                 <p class="eyebrow">Standard</p>
@@ -442,7 +445,7 @@
         </div>
       </dialog>
     </main>
-    <script src="seed-data.js?v=20260610-11"></script>
-    <script src="app.js?v=20260610-11" type="module"></script>
+    <script src="seed-data.js?v=20260610-12"></script>
+    <script src="app.js?v=20260610-12" type="module"></script>
   </body>
 </html>
