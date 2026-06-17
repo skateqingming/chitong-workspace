@@ -1197,7 +1197,6 @@ dl {
 .bottom-nav-item.is-active {
   color: #fffaf0;
   background: linear-gradient(135deg, var(--cedar), #532816);
-  transform: translateY(-2px);
   box-shadow: 0 10px 24px rgba(83, 40, 22, 0.2);
 }
 
@@ -1271,7 +1270,7 @@ dd {
   .shell {
     width: min(100%, 520px);
     height: 100dvh;
-    padding: max(12px, env(safe-area-inset-top)) 10px calc(96px + env(safe-area-inset-bottom));
+    padding: max(12px, env(safe-area-inset-top)) 10px calc(118px + env(safe-area-inset-bottom));
   }
 
   .hero {
@@ -1305,9 +1304,9 @@ dd {
   }
 
   .section-banner {
-    flex-direction: row;
-    align-items: center;
-    gap: 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
     border-radius: 24px;
     padding: 16px;
   }
@@ -1330,9 +1329,9 @@ dd {
   }
 
   .panel-heading {
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
     margin-bottom: 12px;
   }
 
@@ -1348,9 +1347,12 @@ dd {
   .panel-heading > .pill,
   .panel-heading > .ghost,
   .panel-heading > button {
-    align-self: center;
-    flex: 0 0 auto;
+    align-self: flex-start;
     max-width: 100%;
+  }
+
+  .panel-heading > .pill {
+    display: none;
   }
 
   .pill,
@@ -1409,9 +1411,9 @@ dd {
   }
 
   .assignment-card {
-    grid-template-columns: 1fr auto;
-    gap: 12px;
-    align-items: center;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    align-items: start;
   }
 
   .assignment-card .status {
@@ -1419,17 +1421,17 @@ dd {
   }
 
   .timeline-item {
-    grid-template-columns: 68px 1fr;
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 10px;
     border-radius: 20px;
     padding: 13px;
     align-items: center;
   }
 
   .timeline-item time {
-    width: 100%;
-    min-height: 48px;
-    padding: 8px;
+    width: fit-content;
+    min-height: 0;
+    padding: 8px 11px;
     border-radius: 15px;
     font-size: 15px;
   }
@@ -1439,7 +1441,7 @@ dd {
   }
 
   .metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 10px;
   }
 
@@ -1474,11 +1476,11 @@ dd {
 
   .row,
   .payroll-head {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr;
   }
 
   .row {
-    align-items: center;
+    align-items: start;
     padding: 13px;
   }
 
@@ -1489,7 +1491,13 @@ dd {
   }
 
   .actions {
-    justify-content: end;
+    justify-content: start;
+  }
+
+  .kfs-head,
+  .payroll-head {
+    flex-direction: column;
+    align-items: start;
   }
 
   button,
@@ -1550,23 +1558,7 @@ dd {
     font-size: 17px;
   }
 
-  .section-banner,
-  .panel-heading,
-  .row,
-  .assignment-card,
-  .timeline-item {
+  .avatar-upload {
     grid-template-columns: 1fr;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .timeline-item time {
-    width: fit-content;
-    min-height: 0;
-    padding: 8px 11px;
-  }
-
-  .actions {
-    justify-content: start;
   }
 }
