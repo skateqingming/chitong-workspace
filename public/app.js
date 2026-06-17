@@ -58,6 +58,7 @@ const positionList = document.querySelector("#positionList");
 const leaveList = document.querySelector("#leaveList");
 const payrollList = document.querySelector("#payrollList");
 const auditList = document.querySelector("#auditList");
+const identityList = document.querySelector("#identityList");
 const employeeForm = document.querySelector("#employeeForm");
 const workSheetForm = document.querySelector("#workSheetForm");
 const approvalForm = document.querySelector("#approvalForm");
@@ -65,6 +66,7 @@ const departmentForm = document.querySelector("#departmentForm");
 const positionForm = document.querySelector("#positionForm");
 const noticeForm = document.querySelector("#noticeForm");
 const scheduleForm = document.querySelector("#scheduleForm");
+const noticeManageList = document.querySelector("#noticeManageList");
 const employeeDepartmentSelect = document.querySelector("#employeeDepartmentSelect");
 const employeePositionSelect = document.querySelector("#employeePositionSelect");
 const positionDepartmentSelect = document.querySelector("#positionDepartmentSelect");
@@ -72,6 +74,8 @@ const workSheetDepartmentSelect = document.querySelector("#workSheetDepartmentSe
 const workSheetPositionSelect = document.querySelector("#workSheetPositionSelect");
 const noticeDepartmentSelect = document.querySelector("#noticeDepartmentSelect");
 const scheduleDepartmentSelect = document.querySelector("#scheduleDepartmentSelect");
+const noticeIdInput = document.querySelector("#noticeIdInput");
+const noticeCancelButton = document.querySelector("#noticeCancelButton");
 const scheduleIdInput = document.querySelector("#scheduleIdInput");
 const scheduleSubmitButton = document.querySelector("#scheduleSubmitButton");
 const scheduleCancelButton = document.querySelector("#scheduleCancelButton");
@@ -177,6 +181,7 @@ async function handleLogin(event) {
 
 logoutButton?.addEventListener("click", () => {
   state.user = null;
+  state.bootstrap = null;
   state.activeModule = "work";
   workspace.classList.add("is-hidden");
   bottomNav.classList.add("is-hidden");
@@ -335,7 +340,7 @@ noticeForm.addEventListener("submit", async (event) => {
     return;
   }
 
-  noticeForm.reset();
+  resetNoticeForm();
   await loadWorkspace();
 });
 
@@ -360,6 +365,7 @@ scheduleForm.addEventListener("submit", async (event) => {
 });
 
 scheduleCancelButton.addEventListener("click", resetScheduleForm);
+noticeCancelButton?.addEventListener("click", resetNoticeForm);
 
 employeeSearchInput.addEventListener("input", () => {
   state.employeeFilters.query = employeeSearchInput.value.trim().toLowerCase();
@@ -411,12 +417,27 @@ leaveForm.addEventListener("submit", async (event) => {
 });
 
 employeeList.addEventListener("click", (event) => {
+  const deleteButton = event.target.closest("[data-employee-delete]");
+  if (deleteButton) {
+    deleteEmployee(deleteButton.dataset.employeeDelete);
+    return;
+  }
+
   const button = event.target.closest("[data-employee-detail]");
   if (!button) {
     return;
   }
 
   openEmployeeDetail(button.dataset.employeeDetail);
+});
+
+noticeManageList?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-notice-edit]");
+  if (!button) {
+    return;
+  }
+
+  startNoticeEdit(button.dataset.noticeEdit);
 });
 
 handbookList.addEventListener("click", (event) => {
@@ -553,6 +574,7 @@ async function loadWorkspace() {
   renderWorkSheets();
   renderEmployeeAssignments();
   renderNotices();
+  renderNoticeManagement();
   renderEmployeeSchedules();
   renderWeeklySchedules();
   renderSchedules();
@@ -570,6 +592,7 @@ async function loadWorkspace() {
   renderLeaveRequests();
   renderPayrollRuns();
   renderAuditLogs();
+  renderIdentityDirectory();
   renderRoleNavigation();
   setActiveModule(getAllowedModules()[0]);
 }
@@ -675,6 +698,22 @@ async function handleStaticApi(pathname, options = {}) {
     return jsonResponse(201, { employee });
   }
 
+  if (method === "DELETE" && endpoint.startsWith("employees/")) {
+    const employeeId = decodeURIComponent(endpoint.split("/")[1] || "");
+    const employee = data.employees.find((item) => item.id === employeeId);
+
+    if (!employee) {
+      return jsonResponse(404, { error: "员工不存在。" });
+    }
+
+    employee.status = "inactive";
+    employee.leftAt = new Date().toISOString().slice(0, 10);
+    refreshStaticMetrics(data);
+    appendStaticAuditLog(data, state.user?.id || "user-001", "delete_employee", `删除员工：${employee.name}`);
+    saveStaticData(data);
+    return jsonResponse(200, { employee });
+  }
+
   if (method === "POST" && endpoint === "departments") {
     const department = {
       id: `DEP-${String(data.departments.length + 1).padStart(4, "0")}`,
@@ -705,19 +744,26 @@ async function handleStaticApi(pathname, options = {}) {
   }
 
   if (method === "POST" && endpoint === "notices") {
+    const noticeId = String(body.noticeId || "");
+    const existingIndex = data.notices.findIndex((item) => item.id === noticeId);
     const notice = {
-      id: `NTC-${String(data.notices.length + 1).padStart(4, "0")}`,
+      id: noticeId || `NTC-${String(data.notices.length + 1).padStart(4, "0")}`,
       title: String(body.title || "未命名公告"),
       department: String(body.department || "全员"),
       publisher: state.user?.name || "管理员",
       priority: String(body.priority || "通知"),
-      publishedAt: new Date().toISOString().slice(0, 10),
+      publishedAt: existingIndex >= 0 ? data.notices[existingIndex].publishedAt : new Date().toISOString().slice(0, 10),
+      updatedAt: new Date().toISOString().slice(0, 10),
       content: String(body.content || "")
     };
-    data.notices.unshift(notice);
-    appendStaticAuditLog(data, state.user?.id || "user-001", "create_notice", `发布公告：${notice.title}`);
+    if (existingIndex >= 0) {
+      data.notices[existingIndex] = notice;
+    } else {
+      data.notices.unshift(notice);
+    }
+    appendStaticAuditLog(data, state.user?.id || "user-001", existingIndex >= 0 ? "update_notice" : "create_notice", `${existingIndex >= 0 ? "修改" : "发布"}公告：${notice.title}`);
     saveStaticData(data);
-    return jsonResponse(201, { notice });
+    return jsonResponse(existingIndex >= 0 ? 200 : 201, { notice });
   }
 
   if (method === "POST" && endpoint === "schedules") {
@@ -913,7 +959,8 @@ function staticBootstrap(data) {
     leaveRequests: data.leaveRequests,
     payrollRuns: data.payrollRuns,
     auditLogs: data.auditLogs.slice(-8).reverse(),
-    roles: data.roles
+    roles: data.roles,
+    users: data.users.map(toPublicUser)
   };
 }
 
@@ -1299,6 +1346,26 @@ function renderNotices() {
     : `<p class="empty-state">暂时没有新的通知。</p>`;
 }
 
+function renderNoticeManagement() {
+  if (!noticeManageList || !canManage()) {
+    return;
+  }
+
+  noticeManageList.innerHTML = state.bootstrap.notices.length
+    ? state.bootstrap.notices.map((item) => `
+      <div class="row">
+        <div>
+          <strong>${escapeHtml(item.title)}</strong>
+          <p>${escapeHtml(item.department)} · ${escapeHtml(item.priority)} · ${escapeHtml(item.updatedAt || item.publishedAt)}</p>
+        </div>
+        <div class="actions">
+          <button class="mini neutral" type="button" data-notice-edit="${escapeHtml(item.id)}">编辑</button>
+        </div>
+      </div>
+    `).join("")
+    : `<p class="empty-state">暂无公告。</p>`;
+}
+
 function renderApprovals() {
   const approvals = state.bootstrap.approvals.filter((item) => canManage() || item.owner === state.user.name);
 
@@ -1463,6 +1530,7 @@ function renderEmployees() {
         <div class="actions">
           <span class="status">${employeeStatusText(item.status)}</span>
           <button class="mini neutral" type="button" data-employee-detail="${escapeHtml(item.id)}">详情</button>
+          <button class="mini reject" type="button" data-employee-delete="${escapeHtml(item.id)}">删除</button>
         </div>
       </div>
     `)
@@ -1525,6 +1593,26 @@ function resetScheduleForm() {
   scheduleForm.elements.date.value = getISODate(new Date());
   scheduleIdInput.value = "";
   scheduleSubmitButton.textContent = "保存日程";
+}
+
+function startNoticeEdit(noticeId) {
+  const notice = state.bootstrap.notices.find((item) => item.id === noticeId);
+  if (!notice) {
+    return;
+  }
+
+  noticeForm.elements.title.value = notice.title || "";
+  noticeForm.elements.department.value = notice.department || "全员";
+  noticeForm.elements.priority.value = notice.priority || "";
+  noticeForm.elements.content.value = notice.content || "";
+  noticeIdInput.value = notice.id;
+  noticeForm.querySelector("button[type='submit']").textContent = "保存修改";
+}
+
+function resetNoticeForm() {
+  noticeForm.reset();
+  noticeIdInput.value = "";
+  noticeForm.querySelector("button[type='submit']").textContent = "发布";
 }
 
 function renderDepartments() {
@@ -1643,6 +1731,53 @@ function renderAuditLogs() {
       </div>
     `)
     .join("");
+}
+
+function renderIdentityDirectory() {
+  if (!identityList || !canManage()) {
+    return;
+  }
+
+  identityList.innerHTML = state.bootstrap.users.length
+    ? state.bootstrap.users.map((user) => {
+      const employee = state.bootstrap.employees.find((item) => item.name === user.name || item.department === user.department);
+      const role = state.bootstrap.roles.find((item) => item.id === user.role);
+      return `
+        <div class="row">
+          <div>
+            <strong>${escapeHtml(user.name)} · ${escapeHtml(user.email)}</strong>
+            <p>${escapeHtml(user.department || "未分配")} · ${escapeHtml(role?.name || user.role)} · ${employeeStatusText(employee?.status || "active")}</p>
+            <small>${escapeHtml((role?.permissions || []).join("、") || "基础访问")}</small>
+          </div>
+          <span class="status">${escapeHtml(employee?.id || "账号")}</span>
+        </div>
+      `;
+    }).join("")
+    : `<p class="empty-state">暂无企业身份信息。</p>`;
+}
+
+async function deleteEmployee(employeeId) {
+  const employee = state.bootstrap.employees.find((item) => item.id === employeeId);
+  if (!employee) {
+    return;
+  }
+
+  const confirmed = confirm(`确定删除 ${employee.name} 吗？系统会将员工标记为离职，并保留历史记录。`);
+  if (!confirmed) {
+    return;
+  }
+
+  const response = await apiRequest(`employees/${encodeURIComponent(employeeId)}`, {
+    method: "DELETE"
+  });
+
+  if (!response.ok) {
+    const result = await response.json();
+    alert(result.error || "删除员工失败");
+    return;
+  }
+
+  await loadWorkspace();
 }
 
 function statusText(status) {

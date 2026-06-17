@@ -1190,7 +1190,7 @@ dl {
   left: max(12px, env(safe-area-inset-left));
   z-index: 20;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
   width: min(536px, calc(100% - 24px));
   margin: 0 auto;
@@ -1207,12 +1207,12 @@ dl {
 }
 
 .bottom-nav[data-role="employee"] {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .bottom-nav[data-role="admin"],
 .bottom-nav[data-role="manager"] {
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
 }
 
 .bottom-nav-item {
@@ -1243,6 +1243,10 @@ dl {
 
 .bottom-nav-item.is-active span {
   color: #fffaf0;
+}
+
+.logout-nav-item span {
+  color: var(--cedar);
 }
 
 .module-panel[data-module-panel="admin"] .metrics,

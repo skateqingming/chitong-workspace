@@ -98,7 +98,8 @@ async function handleApi(request, response, url) {
       leaveRequests: data.leaveRequests,
       payrollRuns: data.payrollRuns,
       auditLogs: data.auditLogs.slice(-8).reverse(),
-      roles: data.roles
+      roles: data.roles,
+      users: data.users.map(publicUser)
     });
     return;
   }
@@ -142,6 +143,25 @@ async function handleApi(request, response, url) {
     return;
   }
 
+  if (request.method === "DELETE" && url.pathname.startsWith("/api/employees/")) {
+    const data = await loadData();
+    const employeeId = decodeURIComponent(url.pathname.split("/").pop() || "");
+    const employee = data.employees.find((item) => item.id === employeeId);
+
+    if (!employee) {
+      sendJson(response, 404, { error: "员工不存在。" });
+      return;
+    }
+
+    employee.status = "inactive";
+    employee.leftAt = new Date().toISOString().slice(0, 10);
+    refreshMetrics(data);
+    await appendAuditLog(data, "user-001", "delete_employee", `删除员工：${employee.name}`);
+    await saveData(data);
+    sendJson(response, 200, { employee });
+    return;
+  }
+
   if (request.method === "POST" && url.pathname === "/api/departments") {
     const body = await readJsonBody(request);
     const data = await loadData();
@@ -174,6 +194,62 @@ async function handleApi(request, response, url) {
     await appendAuditLog(data, "user-001", "create_position", `新增岗位：${position.title}`);
     await saveData(data);
     sendJson(response, 201, { position });
+    return;
+  }
+
+  if (request.method === "POST" && url.pathname === "/api/notices") {
+    const body = await readJsonBody(request);
+    const data = await loadData();
+    const noticeId = String(body.noticeId || "");
+    const existingIndex = data.notices.findIndex((item) => item.id === noticeId);
+    const notice = {
+      id: noticeId || `NTC-${String(data.notices.length + 1).padStart(4, "0")}`,
+      title: String(body.title || "未命名公告"),
+      department: String(body.department || "全员"),
+      publisher: "管理员",
+      priority: String(body.priority || "通知"),
+      publishedAt: existingIndex >= 0 ? data.notices[existingIndex].publishedAt : new Date().toISOString().slice(0, 10),
+      updatedAt: new Date().toISOString().slice(0, 10),
+      content: String(body.content || "")
+    };
+
+    if (existingIndex >= 0) {
+      data.notices[existingIndex] = notice;
+    } else {
+      data.notices.unshift(notice);
+    }
+
+    await appendAuditLog(data, "user-001", existingIndex >= 0 ? "update_notice" : "create_notice", `${existingIndex >= 0 ? "修改" : "发布"}公告：${notice.title}`);
+    await saveData(data);
+    sendJson(response, existingIndex >= 0 ? 200 : 201, { notice });
+    return;
+  }
+
+  if (request.method === "POST" && url.pathname === "/api/schedules") {
+    const body = await readJsonBody(request);
+    const data = await loadData();
+    const scheduleId = String(body.scheduleId || "");
+    const schedule = {
+      id: scheduleId || `SCH-${String(data.schedules.length + 1).padStart(4, "0")}`,
+      date: String(body.date || new Date().toISOString().slice(0, 10)),
+      day: formatShortWeekday(String(body.date || new Date().toISOString().slice(0, 10))),
+      time: String(body.time || "09:30"),
+      title: String(body.title || "未命名日程"),
+      department: String(body.department || "全员"),
+      location: String(body.location || "待定"),
+      owner: String(body.owner || "管理员")
+    };
+    const existingIndex = data.schedules.findIndex((item) => item.id === schedule.id);
+
+    if (existingIndex >= 0) {
+      data.schedules[existingIndex] = schedule;
+    } else {
+      data.schedules.unshift(schedule);
+    }
+
+    await appendAuditLog(data, "user-001", existingIndex >= 0 ? "update_schedule" : "create_schedule", `${existingIndex >= 0 ? "修改" : "新增"}日程：${schedule.title}`);
+    await saveData(data);
+    sendJson(response, existingIndex >= 0 ? 200 : 201, { schedule });
     return;
   }
 
@@ -381,6 +457,15 @@ function refreshMetrics(data) {
   data.metrics.pendingLeaves = data.leaveRequests.filter((item) => item.status === "pending").length;
   const currentRun = data.payrollRuns[0];
   data.metrics.payrollTotal = Number(currentRun?.grossPay || 0);
+}
+
+function formatShortWeekday(dateString) {
+  const date = new Date(`${dateString}T00:00:00`);
+  if (Number.isNaN(date.getTime())) {
+    return "待定";
+  }
+
+  return ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][date.getDay()];
 }
 
 function publicUser(user) {

@@ -10,7 +10,7 @@
     <title>赤瞳工作空间</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icon.svg">
-    <link rel="stylesheet" href="styles.css?v=20260610-15">
+    <link rel="stylesheet" href="styles.css?v=20260610-16">
   </head>
   <body>
     <main class="shell">
@@ -298,8 +298,11 @@
               <select name="department" id="noticeDepartmentSelect" required></select>
               <input name="priority" placeholder="类型，例如：重要、提醒、财务" required>
               <input name="content" placeholder="公告内容" required>
+              <input name="noticeId" id="noticeIdInput" type="hidden">
+              <button type="button" class="ghost compact-button" id="noticeCancelButton">取消修改</button>
               <button type="submit">发布</button>
             </form>
+            <div class="list compact" id="noticeManageList"></div>
           </article>
 
           <article class="panel">
@@ -424,6 +427,17 @@
             </div>
             <div class="list compact" id="auditList"></div>
           </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Identity</p>
+                <h3>企业身份系统</h3>
+              </div>
+              <span class="pill">全员信息</span>
+            </div>
+            <div class="list compact" id="identityList"></div>
+          </article>
         </section>
         </section>
       </section>
@@ -441,6 +455,9 @@
         <button class="bottom-nav-item" type="button" data-module-target="me">
           <span>我</span>
         </button>
+        <button class="bottom-nav-item logout-nav-item" id="logoutButton" type="button">
+          <span>退出</span>
+        </button>
       </nav>
 
       <dialog class="detail-dialog" id="detailDialog">
@@ -450,7 +467,7 @@
         </div>
       </dialog>
     </main>
-    <script src="seed-data.js?v=20260610-15"></script>
-    <script src="app.js?v=20260610-15" type="module"></script>
+    <script src="seed-data.js?v=20260610-16"></script>
+    <script src="app.js?v=20260610-16" type="module"></script>
   </body>
 </html>
