@@ -1,0 +1,16 @@
+services:
+  app:
+    build:
+      context: ../..
+    container_name: chitong-workspace
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATA_FILE: /app/runtime/app.json
+      MAX_BODY_BYTES: "1048576"
+    volumes:
+      - ./runtime:/app/runtime
+    ports:
+      - "127.0.0.1:3000:3000"

@@ -13,7 +13,7 @@
 - 部门/岗位管理与员工搜索筛选
 - 微信式底部大模块：工作、知识、绩效、管理
 - iPhone 可添加到主屏幕的 PWA 配置
-- 在线系统部署配置：Render、Docker、环境变量、健康检查
+- 在线系统部署配置：国内云服务器、Docker、环境变量、健康检查
 - PostgreSQL 数据库表结构和演示数据导出脚本
 - 审计日志
 - 产品准备清单、技术架构、安全清单、插件建议
@@ -98,15 +98,16 @@ docs/06-before-phone-install.md
 
 ## 在线系统上线
 
-项目已准备最低成本上线文件：
+项目已准备最低成本上线文件，国内环境建议优先看这份：
 
 ```text
-render.yaml
 Dockerfile
+deploy/tencent/docker-compose.yml
+deploy/tencent/README.md
 .env.example
 db/schema.sql
 scripts/export-seed-sql.mjs
-docs/07-online-deployment.md
+docs/08-china-deployment.md
 ```
 
 生成 PostgreSQL 演示种子数据：
@@ -118,7 +119,7 @@ npm run db:seed:export
 完整上线步骤见：
 
 ```text
-docs/07-online-deployment.md
+docs/08-china-deployment.md
 ```
 
 ## 当前人员管理模块
