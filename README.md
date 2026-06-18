@@ -104,6 +104,7 @@ docs/06-before-phone-install.md
 Dockerfile
 deploy/tencent/docker-compose.yml
 deploy/tencent/README.md
+deploy/tencent/purchase-checklist.md
 .env.example
 db/schema.sql
 scripts/export-seed-sql.mjs
